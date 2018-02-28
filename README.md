@@ -55,7 +55,7 @@ $ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar @arguments.txt
 The `opdsget` program is capable of producing a _reproducible_ zip
 archive of any feed that it downloads. A _reproducible_ zip is a zip
 archive with entries in alphabetical order, with any time-related
-fields in the entry set of predictable values. The `opdsget` API
+fields in the entry set to fixed values. The `opdsget` API
 also removes frequently-changing time-related fields from feeds in
 order to help ensure reproducible results. To produce a zip file
 `/tmp/out.zip`, use the `--output-archive` option:
