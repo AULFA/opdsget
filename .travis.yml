@@ -1,0 +1,11 @@
+language: java
+
+jdk:
+  - oraclejdk9
+
+install: true
+
+script:
+  - mvn --errors clean verify site
+  - bash <(curl -s https://codecov.io/bash) -f org.aulfa.opdsget.tests/target/site/jacoco-aggregate/jacoco.xml
+

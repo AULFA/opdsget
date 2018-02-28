@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:opds="http://opds-spec.org/2010/catalog"
+      xmlns:thr="http://purl.org/syndication/thread/1.0"
+      xmlns:dcterms="http://purl.org/dc/terms/"
+      xml:lang="en">
+
+  <id>http://lfa.cantookstation.com/catalog.atom</id>
+  <title>Catalogue</title>
+  <icon>https://www.cantookstation.com/favicon/cdoc.ico</icon>
+
+  <author>
+    <name>De Marque</name>
+    <uri>http://demarque.com</uri>
+    <email>info@demarque.com</email>
+  </author>
+
+  <link href="http://example.com/1.atom"
+        rel="next"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+
+  <updated>2010-01-01T00:00:00Z</updated>
+
+  <entry>
+    <id>
+      http://lfa.cantookstation.com/resource_entries/5a956ee22357943764616fdb.atom
+    </id>
+    <title>I Can See A Cuscus</title>
+    <summary/>
+    <author>
+      <name>Bruce Sagata</name>
+    </author>
+    <published>2018-02-27T14:44:50Z</published>
+    <updated>2010-01-01T00:00:00Z</updated>
+    <link href="http://example.com/1.entry"
+          rel="alternate"
+          type="application/atom+xml;type=entry;profile=opds-catalog"/>
+    <link href="http://example.com/thumbnail.png"
+          rel="http://opds-spec.org/image/thumbnail"
+          type="image/jpeg"/>
+    <link href="http://example.com/cover.png"
+          rel="http://opds-spec.org/image"
+          type="image/jpeg"/>
+    <dcterms:language>en</dcterms:language>
+    <dcterms:publisher>Library For All</dcterms:publisher>
+    <dcterms:issued>2018-02-01</dcterms:issued>
+    <link href="http://example.com/0.epub"
+          rel="http://opds-spec.org/acquisition/open-access"
+          type="application/epub+zip">
+      <identifier>docrurn-uuid-a948b250-1567-43ad-8626-2722cc6fc134-epub
+      </identifier>
+    </link>
+  </entry>
+
+  <link rel="self"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"
+        href="https://lfa.cantookstation.com/catalog.atom"/>
+  <link rel="prev"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"
+        href="https://lfa.cantookstation.com/catalog.atom?page=1"/>
+  <link rel="search"
+        type="application/opensearchdescription+xml"
+        href="https://lfa.cantookstation.com/catalog/opensearch.xml"
+        title="Search on Library For All"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom"
+        title="New Releases"
+        opds:facetGroup="Sort"
+        opds:activeFacet="true"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?sort=created_at"
+        title="Recently Added"
+        opds:facetGroup="Sort"
+        opds:activeFacet="false"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom"
+        title="All"
+        opds:facetGroup="Availability"
+        opds:activeFacet="true"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?available=available"
+        title="Available now"
+        opds:facetGroup="Availability"
+        opds:activeFacet="false"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?category=FBFIC000000&amp;category_standard=feedbooks"
+        title="Fiction"
+        opds:facetGroup="Category"
+        opds:activeFacet="false"
+        thr:count="4"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?category=FBJUV000000&amp;category_standard=feedbooks"
+        title="Youth"
+        opds:facetGroup="Category"
+        opds:activeFacet="false"
+        thr:count="4"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?category=FBNFC000000&amp;category_standard=feedbooks"
+        title="Non-Fiction"
+        opds:facetGroup="Category"
+        opds:activeFacet="false"
+        thr:count="1"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?category=FBJNF000000&amp;category_standard=feedbooks"
+        title="Juvenile"
+        opds:facetGroup="Category"
+        opds:activeFacet="false"
+        thr:count="1"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom"
+        title="All languages"
+        opds:facetGroup="Language"
+        opds:activeFacet="true"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?language=fr"
+        title="French"
+        opds:facetGroup="Language"
+        opds:activeFacet="false"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?language=en"
+        title="English"
+        opds:facetGroup="Language"
+        opds:activeFacet="false"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom"
+        title="All"
+        opds:facetGroup="DRM"
+        opds:activeFacet="true"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?drm=lcp"
+        title="LCP"
+        opds:facetGroup="DRM"
+        opds:activeFacet="false"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?drm=acs4"
+        title="ACS4"
+        opds:facetGroup="DRM"
+        opds:activeFacet="false"/>
+  <link rel="http://opds-spec.org/facet"
+        href="https://lfa.cantookstation.com/catalog.atom?drm=none"
+        title="None"
+        opds:facetGroup="DRM"
+        opds:activeFacet="false"/>
+  <link type="text/html"
+        rel="alternate"
+        href="https://lfa.cantookstation.com/resources/5a70930f2357942c79246e52"
+        title="Read on lfa.cantookstation.com"/>
+
+</feed>
