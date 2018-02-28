@@ -35,7 +35,9 @@ To download a feed `http://example.com/feed.atom` to directory
 authentication, simply run the following:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar --feed http://example.com/feed.atom --output-directory /tmp/out
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+  --feed http://example.com/feed.atom \
+  --output-directory /tmp/out
 ```
 
 The `opdsget` package uses [jcommander](http://jcommander.org) to
@@ -61,7 +63,10 @@ order to help ensure reproducible results. To produce a zip file
 `/tmp/out.zip`, use the `--output-archive` option:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar --feed http://example.com/feed.atom --output-directory /tmp/out --output-archive /tmp/out.zip
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+  --feed http://example.com/feed.atom \
+  --output-directory /tmp/out \
+  --output-archive /tmp/out.zip
 ```
 
 ## Authentication
@@ -111,6 +116,10 @@ Assuming the above example authentication file in `authentication.map`,
 the feed can be fetched using authentication information with:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar --feed http://example.com/feed.atom --output-directory /tmp/out --output-archive /tmp/out.zip --authentication authentication.map
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+  --feed http://example.com/feed.atom \
+  --output-directory /tmp/out \
+  --output-archive /tmp/out.zip \
+  --authentication authentication.map
 ```
 
