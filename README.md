@@ -48,6 +48,8 @@ $ cat arguments.txt
 http://example.com/feed.atom
 --output-directory
 /tmp/out
+
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar @arguments.txt
 ```
 
 The `opdsget` program is capable of producing a _reproducible_ zip
