@@ -54,6 +54,8 @@ http://example.com/feed.atom
 $ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar @arguments.txt
 ```
 
+## Archiving
+
 The `opdsget` program is capable of producing a _reproducible_ zip
 archive of any feed that it downloads. A _reproducible_ zip is a zip
 archive with entries in alphabetical order, with any time-related
@@ -68,6 +70,16 @@ $ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip
 ```
+
+Each downloaded object is stored in the output directory (and therefore,
+by extension, the resulting zip file) both by the `SHA256` hash of the
+original URI and the type of the file. Links inside feeds are rewritten
+so that they point to files within the output directory (using relative
+paths). For example, a feed at `http://www.example.com/feed.atom` will
+be placed in the output directory `out` at `out/feeds/DD1E9BA1ECF8D7B30994CB07D62320DE5F8912D8DF336B874489FD2D9985AEB2.atom`.
+Any reference to `http://www.example.com/feed.atom` in subsequent feeds
+will be rewritten to `file://feeds/DD1E9BA1ECF8D7B30994CB07D62320DE5F8912D8DF336B874489FD2D9985AEB2.atom`
+by default.
 
 ## Authentication
 
