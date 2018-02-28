@@ -100,6 +100,9 @@ authentication =
   | 'basic' , ':' , user , ':' , password ;
 ```
 
+The two currently supported authentication types are `none` (meaning no credentials
+are sent with any request), and `basic` (HTTP Basic authentication).
+
 Additionally, lines containing only whitespace, or starting with `#` are ignored.
 
 Assuming the above example authentication file in `authentication.map`,
