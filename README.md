@@ -11,6 +11,10 @@ An OPDS feed retrieval and rewriting tool.
 * Well designed modular API for use in Java 9 programs
 * Command line interface
 
+## Requirements
+
+* Java 9+
+
 ## Usage
 
 ```
