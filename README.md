@@ -105,6 +105,8 @@ line = pattern , authentication , line_terminator ;
 authentication =
     'none'
   | 'basic' , ':' , user , ':' , password ;
+
+file = { line } ;
 ```
 
 The two currently supported authentication types are `none` (meaning no credentials
