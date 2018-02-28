@@ -10,6 +10,7 @@ import org.aulfa.opdsget.api.OPDSAuthenticationType;
 import org.aulfa.opdsget.api.OPDSGetConfiguration;
 import org.aulfa.opdsget.api.OPDSHTTPDefault;
 import org.aulfa.opdsget.api.OPDSRetrieverType;
+import org.aulfa.opdsget.api.OPDSURIRewriters;
 import org.aulfa.opdsget.vanilla.OPDSRetrievers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,12 @@ public final class Main
       description = "The file containing authentication information",
       required = false)
     private String auth;
+
+    @Parameter(
+      names = "--uri-rewrite-scheme",
+      description = "The scheme that will be used for rewritten URIs",
+      required = false)
+    private String uri_rewrite_scheme = "file";
   }
 
   /**
@@ -184,6 +191,9 @@ public final class Main
         OPDSGetConfiguration.builder()
           .setOutput(parsed_arguments.output_directory)
           .setRemoteURI(parsed_arguments.feed)
+          .setUriRewriter(OPDSURIRewriters.namedSchemeRewriter(
+            parsed_arguments.uri_rewrite_scheme,
+            parsed_arguments.output_directory))
           .setOutputArchive(
             Optional.ofNullable(parsed_arguments.output_archive)
               .map(Paths::get))

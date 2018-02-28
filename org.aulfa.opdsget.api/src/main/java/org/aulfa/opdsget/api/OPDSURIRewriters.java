@@ -25,11 +25,26 @@ public final class OPDSURIRewriters
   public static Function<OPDSLocalFile, URI> plainFileRewriter(
     final Path output)
   {
+    return namedSchemeRewriter("file", output);
+  }
+
+  /**
+   * @param scheme The name of the resulting scheme
+   * @param output The output directory against which URIs will be relativized
+   *
+   * @return A rewriter that simply rewrites to local file URIs.
+   */
+
+  public static Function<OPDSLocalFile, URI> namedSchemeRewriter(
+    final String scheme,
+    final Path output)
+  {
+    Objects.requireNonNull(scheme, "scheme");
     Objects.requireNonNull(output, "output");
 
     return local_file -> {
       final Path file = local_file.file();
-      return URI.create("file://" + output.relativize(file));
+      return URI.create(scheme + "://" + output.relativize(file));
     };
   }
 
@@ -43,10 +58,6 @@ public final class OPDSURIRewriters
     final Path output)
   {
     Objects.requireNonNull(output, "output");
-
-    return local_file -> {
-      final Path file = local_file.file();
-      return URI.create("file:///android_asset/" + output.relativize(file));
-    };
+    return namedSchemeRewriter("android_asset", output);
   }
 }
