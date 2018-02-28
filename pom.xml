@@ -26,6 +26,7 @@
     <module>org.aulfa.opdsget.tests</module>
     <module>org.aulfa.opdsget.checkstyle</module>
     <module>org.aulfa.opdsget.vanilla</module>
+    <module>org.aulfa.opdsget.cmdline</module>
   </modules>
 
   <properties>
@@ -109,6 +110,11 @@
         <version>1.8.0-beta1</version>
       </dependency>
 
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.72</version>
+      </dependency>
       <dependency>
         <groupId>org.nanohttpd</groupId>
         <artifactId>nanohttpd</artifactId>

@@ -48,6 +48,8 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 public final class OPDSRetrievers implements OPDSRetrieverProviderType
 {
+  private static final Logger LOG = LoggerFactory.getLogger(OPDSRetrievers.class);
+
   private final OPDSHTTPType http;
   private final OPDSXMLParsers parsers;
 
@@ -120,8 +122,6 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
   private static final class Retrieval
   {
-    private static final Logger LOG = LoggerFactory.getLogger(Retrieval.class);
-
     private final OPDSGetConfiguration configuration;
     private final ExecutorService executor;
     private final OPDSHTTPType http;
@@ -236,7 +236,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     {
       final Path path = this.configuration.imageFileHashed(uri);
       final Path path_tmp = temporaryFile(path);
-      LOG.debug("downloadImage: {} -> {}", uri, path);
+      LOG.info("image GET {} -> {}", uri, path);
       this.downloadFile(uri, path, path_tmp);
     }
 
@@ -250,7 +250,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     {
       final Path path = this.configuration.bookFileHashed(uri);
       final Path path_tmp = temporaryFile(path);
-      LOG.debug("downloadBook: {} -> {}", uri, path);
+      LOG.info("book GET {} -> {}", uri, path);
       this.downloadFile(uri, path, path_tmp);
     }
 
@@ -280,7 +280,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
          * Fetch the remote document.
          */
 
-        LOG.debug("processOne: fetch: {}", uri);
+        LOG.info("feed GET {}", uri);
 
         final OPDSHTTPData data =
           this.http.get(
@@ -395,6 +395,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         final Optional<Path> archive_opt = this.configuration.outputArchive();
         if (archive_opt.isPresent()) {
           final Path archive = archive_opt.get();
+          LOG.info("zip {} -> {}", this.configuration.output(), archive);
           OPDSArchiver.createArchive(
             this.configuration.output(),
             archive,
