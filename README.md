@@ -81,7 +81,9 @@ The `opdsget` command uses a simple line-based file format to specify
 patterns against which URIs are matched. Patterns are matched against
 URIs in the order that they are given in the file, stopping at the
 first pattern that matches. If no pattern matches the incoming URI,
-then no authentication data is assumed.
+then no authentication data is assumed. Patterns use
+[Java regular expression syntax](https://docs.oracle.com/javase/9/docs/api/java/util/regex/Pattern.html)
+and are matched against the entire URI including the scheme (`http://`, `https://`, etc).
 
 An example authentication file:
 
