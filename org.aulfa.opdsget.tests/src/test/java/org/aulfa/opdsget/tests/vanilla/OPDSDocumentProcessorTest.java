@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.xpath.XPath;
@@ -102,9 +103,16 @@ public final class OPDSDocumentProcessorTest
       (NodeList) this.xpath_updated.evaluate(document, XPathConstants.NODESET);
 
     Assert.assertEquals(
-      "Document contains no 'updated' elements",
-      0L,
+      "Document contains the same number of 'updated' elements",
+      (long) updateds_before.getLength(),
       (long) updateds_after.getLength());
+
+    {
+      for (int index = 0; index < updateds_after.getLength(); ++index) {
+        final Element e = (Element) updateds_after.item(index);
+        Assert.assertEquals("2000-01-01T00:00:00Z", e.getTextContent());
+      }
+    }
 
     final NodeList links_after =
       (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);

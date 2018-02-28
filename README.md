@@ -7,7 +7,7 @@ An OPDS feed retrieval and rewriting tool.
 
 * Efficient parallel downloading of large feeds
 * Transparent rewriting of feed URIs to make feeds readable offline
-* Byte-for-byte reproducible feed archives (including stripping of time-related fields from feeds)
+* Byte-for-byte reproducible feed archives (including fixing of time-related fields from feeds)
 * Well designed modular API for use in Java 9 programs
 * Command line interface
 
@@ -63,9 +63,9 @@ The `opdsget` program is capable of producing a _reproducible_ zip
 archive of any feed that it downloads. A _reproducible_ zip is a zip
 archive with entries in alphabetical order, with any time-related
 fields in the entry set to fixed values. The `opdsget` API
-also removes frequently-changing time-related fields from feeds in
-order to help ensure reproducible results. To produce a zip file
-`/tmp/out.zip`, use the `--output-archive` option:
+also sets frequently-changing time-related fields from feeds to
+fixed values in order to help ensure reproducible results. To produce
+a zip file `/tmp/out.zip`, use the `--output-archive` option:
 
 ```
 $ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \

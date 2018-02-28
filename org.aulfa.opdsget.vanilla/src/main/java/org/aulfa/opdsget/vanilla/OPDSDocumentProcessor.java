@@ -187,7 +187,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
     for (int index = 0; index < updateds.getLength(); ++index) {
       final Element updated = (Element) updateds.item(index);
-      removeElement(updated);
+      updated.setTextContent("2000-01-01T00:00:00Z");
     }
   }
 }
