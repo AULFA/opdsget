@@ -9,7 +9,13 @@ import org.w3c.dom.Document;
 public interface OPDSDocumentProcessorType
 {
   /**
-   * Process an input document.
+   * Process an input document. Document processors are responsible for
+   * doing various tasks such as rewriting link elements to point to locally
+   * downloaded files, modifying time-related fields to ensure reproducibility,
+   * and so on. Processor implementations modify {@code document} in-place and
+   * so callers should call {@link org.w3c.dom.Document#cloneNode(boolean)}
+   * on {@code document} if they want the processor to operate on an isolated
+   * copy instead of modifying the original.
    *
    * @param configuration The OPDS retriever configuration
    * @param document      The input document
