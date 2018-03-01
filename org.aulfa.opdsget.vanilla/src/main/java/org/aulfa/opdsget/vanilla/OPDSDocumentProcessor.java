@@ -86,6 +86,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     final Document document)
     throws Exception
   {
+    Objects.requireNonNull(configuration, "configuration");
     Objects.requireNonNull(document, "document");
 
     final Map<URI, OPDSLocalFile> feeds = new HashMap<>();
