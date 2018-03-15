@@ -15,6 +15,14 @@ An OPDS feed retrieval and rewriting tool.
 
 * Java 9+
 
+## How To Build
+
+```
+$ mvn clean package
+```
+
+If the above fails, it's a bug. Report it!
+
 ## Usage
 
 ```
