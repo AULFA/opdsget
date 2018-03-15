@@ -25,6 +25,7 @@ import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -150,7 +151,10 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
     private static Path temporaryFile(final Path path)
     {
-      return path.getParent().resolve(path.getFileName() + ".tmp");
+      return Paths.get(new StringBuilder(64)
+                         .append(path.toString())
+                         .append(".tmp")
+                         .toString());
     }
 
     private CompletableFuture<Void> processFeed(final URI uri)

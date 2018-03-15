@@ -27,8 +27,12 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -45,6 +49,8 @@ public abstract class OPDSRetrieverContract
   private static final int HTTPD_PORT = 34567;
   private ExecutorService exec;
   private Path output;
+  private Path output_relative;
+  private Path output_archive_relative;
   private NanoHTTPD httpd;
 
   @Rule public final ExpectedException expected = ExpectedException.none();
@@ -54,6 +60,9 @@ public abstract class OPDSRetrieverContract
     throws IOException
   {
     this.output = Files.createTempDirectory("opdsget-tests");
+    this.output_relative = Paths.get("temporary");
+    this.output_archive_relative = Paths.get("temporary.zip");
+
     this.exec = Executors.newFixedThreadPool(8, r -> {
       final Thread th = new Thread(r);
       th.setName("org.aulfa.opdsget.io[" + th.getId() + "]");
@@ -101,6 +110,41 @@ public abstract class OPDSRetrieverContract
   @After
   public void tearDown()
   {
+    try {
+      if (Files.isDirectory(this.output_relative)) {
+        Files.walkFileTree(this.output_relative, new SimpleFileVisitor<Path>()
+        {
+          @Override
+          public FileVisitResult visitFile(
+            final Path file,
+            final BasicFileAttributes attrs)
+            throws IOException
+          {
+            Files.deleteIfExists(file);
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult postVisitDirectory(
+            final Path dir,
+            final IOException exc)
+            throws IOException
+          {
+            Files.deleteIfExists(dir);
+            return FileVisitResult.CONTINUE;
+          }
+        });
+      }
+    } catch (final IOException e) {
+      this.logger().error("could not clean up: ", e);
+    }
+
+    try {
+      Files.deleteIfExists(this.output_archive_relative);
+    } catch (final IOException e) {
+      this.logger().error("could not clean up: ", e);
+    }
+
     this.exec.shutdown();
     this.httpd.stop();
   }
@@ -353,6 +397,64 @@ public abstract class OPDSRetrieverContract
       "books/AB30D8632DE2638B8746C3D9E7184F705CB234CD5FDF4CC8CD7456A2C1C39850.epub"));
     assertFileExists(this.output.resolve(
       "books/E541B79B837177FDC14D348067E560DCA5BEBAEB1C07C44B3A8F0D3815D5CE73.epub"));
+  }
+
+  @Test
+  public void testBug2()
+    throws Throwable
+  {
+    final MockingHTTP mock_http =
+      new MockingHTTP(Map.of(
+        "https://example.com/1.atom",
+        () -> httpDataOf(resourceStream("books_and_covers.xml")),
+        "https://example.com/thumbnail_0.png",
+        () -> httpDataOf(stringStream("thumbnail_0.txt")),
+        "https://example.com/thumbnail_1.png",
+        () -> httpDataOf(stringStream("thumbnail_1.txt")),
+        "https://example.com/cover_0.png",
+        () -> httpDataOf(stringStream("cover_0.txt")),
+        "https://example.com/cover_1.png",
+        () -> httpDataOf(stringStream("cover_1.txt")),
+        "https://example.com/0.epub",
+        () -> httpDataOf(stringStream("epub_0.txt")),
+        "https://example.com/1.epub",
+        () -> httpDataOf(stringStream("epub_1.txt"))
+      ));
+
+    final OPDSRetrieverProviderType retrievers =
+      this.retrievers(mock_http);
+    final OPDSRetrieverType retriever =
+      retrievers.create(this.exec);
+
+    final OPDSGetConfiguration config =
+      OPDSGetConfiguration.builder()
+        .setOutput(this.output_relative)
+        .setOutputArchive(this.output_archive_relative)
+        .setRemoteURI(URI.create("https://example.com/1.atom"))
+        .build();
+
+    try {
+      retriever.retrieve(config).get();
+    } catch (final InterruptedException e) {
+      throw e;
+    } catch (final ExecutionException e) {
+      throw e.getCause();
+    }
+
+    mock_http.checkAllCalled();
+
+    assertFileExists(this.output_relative.resolve(
+      "feeds/EC7DD5867707ED7B2A7E3A57BCF9994E1178AEF0B8C18977FB1011AD10709FA0.atom"));
+    assertFileExists(this.output_relative.resolve(
+      "images/C20256EE994470033BCC12D37F08898A06304557FECA4849BF09DBFAFD9E4B12"));
+    assertFileExists(this.output_relative.resolve(
+      "images/AA739188B2729F243D0E679A9B76E71957CED3F3E7A59B567B47C4A35C7B4B20"));
+    assertFileExists(this.output_relative.resolve(
+      "images/36AD7C41A6CDBF7CBD9D6165FFA469A1B142E233F772AFCDA9443716C24E8737"));
+    assertFileExists(this.output_relative.resolve(
+      "books/CC6BAB78A232CC63D8DE8D8F2F2FFFB452762C0464478409982DB78034FAC80E.epub"));
+    assertFileExists(this.output_relative.resolve(
+      "books/E6CAB9F69F8408D271A7605C86857F63D38E9AB80964A7BEF9B13053D5B8305E.epub"));
   }
 
   private static OPDSHTTPData httpDataOf(final InputStream stream)
