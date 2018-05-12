@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
@@ -40,7 +42,7 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
 
       final URL url = uri.toURL();
       final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setInstanceFollowRedirects(true);
+      connection.setInstanceFollowRedirects(false);
       connection.setRequestMethod("GET");
       connection.setRequestProperty("User-Agent", "org.aulfa.opdsget");
 
@@ -49,6 +51,20 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
       final int code = connection.getResponseCode();
       if (LOG.isDebugEnabled()) {
         LOG.debug("GET {} -> {}", uri, Integer.valueOf(code));
+      }
+
+      switch (connection.getResponseCode())
+      {
+        case HttpURLConnection.HTTP_MOVED_PERM:
+        case HttpURLConnection.HTTP_MOVED_TEMP:
+          final String location = URLDecoder.decode(connection.getHeaderField("Location"), "UTF-8");
+          final URL base = new URL(url.toString());
+          final URL next = new URL(base, location);
+          try {
+            return get(next.toURI(), Optional.empty());
+          } catch (URISyntaxException e) {
+            throw new OPDSHTTPException(e.getCause(), -1, "");
+          }
       }
 
       if (code >= 400) {
