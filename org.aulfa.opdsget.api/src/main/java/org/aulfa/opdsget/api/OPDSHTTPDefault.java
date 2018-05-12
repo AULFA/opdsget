@@ -63,7 +63,7 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
           try {
             return get(next.toURI(), Optional.empty());
           } catch (URISyntaxException e) {
-            throw new OPDSHTTPException(e.getCause(), -1, "");
+            throw new OPDSHTTPException(e, -1, "");
           }
       }
 
