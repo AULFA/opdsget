@@ -163,12 +163,16 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         }
 
         case "http://opds-spec.org/acquisition/open-access": {
+          // WINNIE
+          break;
+          /*
           final URI target = URI.create(link.getAttribute("href"));
           final Path path = configuration.bookFileHashed(target);
           final OPDSLocalFile file = OPDSLocalFile.of(target, path);
           books.put(target, file);
           rewriteLinkTarget(rewriter, link, file);
           break;
+          */
         }
 
         default: {
