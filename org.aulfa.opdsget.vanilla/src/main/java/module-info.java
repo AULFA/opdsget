@@ -2,7 +2,7 @@ import org.aulfa.opdsget.api.OPDSRetrieverProviderType;
 import org.aulfa.opdsget.vanilla.OPDSRetrievers;
 
 /**
- * The vanilla implementation of the <tt>opdsget</tt> API.
+ * The vanilla implementation of the {@code opdsget} API.
  */
 
 module org.aulfa.opdsget.vanilla

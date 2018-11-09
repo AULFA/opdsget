@@ -34,6 +34,8 @@
     <io7m.checkstyle.path>/org/aulfa/opdsget/checkstyle/checkstyle.xml</io7m.checkstyle.path>
     <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
 
+    <io7m.maven-surefire-plugin.version>3.0.0-M1</io7m.maven-surefire-plugin.version>
+    <io7m.jacoco-maven-plugin.version>0.8.2</io7m.jacoco-maven-plugin.version>
     <org.aulfa.org.immutables.version>2.6.0-alpha1</org.aulfa.org.immutables.version>
   </properties>
 

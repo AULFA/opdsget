@@ -1,5 +1,5 @@
 /**
- * The vanilla implementation of the <tt>opdsget</tt> API.
+ * The vanilla implementation of the {@code opdsget} API.
  */
 
 package org.aulfa.opdsget.vanilla;
