@@ -4,8 +4,10 @@ import org.immutables.value.Value;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -211,5 +213,16 @@ public interface OPDSGetConfigurationType
   default Path bookDirectory()
   {
     return this.typedDirectory("books");
+  }
+
+  /**
+   * @return The set of feed content kinds that will be fetched
+   */
+
+  @Value.Default
+  @Value.Parameter
+  default Set<OPDSGetKind> fetchedKinds()
+  {
+    return EnumSet.allOf(OPDSGetKind.class);
   }
 }

@@ -30,6 +30,10 @@ Usage: opdsget [options]
   Options:
     --authentication
       The file containing authentication information
+    --exclude-content-kind
+      The kind of content that will not be downloaded (Specify multiple times 
+      for multiple kinds)
+      Default: []
   * --feed
       The URI of the remote feed
     --log-level
@@ -108,6 +112,36 @@ $ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
 ```
 
 This will result in feeds containing links such as `bundled-example://feeds/DD1E9BA1ECF8D7B30994CB07D62320DE5F8912D8DF336B874489FD2D9985AEB2.atom`.
+
+In some cases, it may be desirable to fetch the feeds but not the
+content (such as book images and/or the actual book files themselves).
+The `--exclude-content-kind` parameter may be specified one or more
+times to exclude specific content. For example, the following invocations
+will cause `opdsget` to avoid downloading book images, avoid downloading
+books, and avoid downloading anything other than feeds, respectively:
+
+```
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+  --feed http://example.com/feed.atom \
+  --exclude-content-kind images \
+  --output-directory /tmp/out
+
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+  --feed http://example.com/feed.atom \
+  --exclude-content-kind books \
+  --output-directory /tmp/out
+
+$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+  --feed http://example.com/feed.atom \
+  --exclude-content-kind images \
+  --exclude-content-kind books \
+  --output-directory /tmp/out
+```
+
+Content that is excluded by the `--exclude-content-kind` parameter
+will _not_ be affected by the `--uri-rewrite-scheme` option; only
+content that is actually downloaded will have rewritten links. By
+default, `opdsget` excludes nothing.
 
 ## Authentication
 

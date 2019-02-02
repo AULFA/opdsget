@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -361,7 +362,85 @@ public abstract class OPDSRetrieverContract
   }
 
   @Test
+  public void testDownloadNoBooksOrCovers()
+    throws Throwable
+  {
+    final MockingHTTP mock_http =
+      new MockingHTTP(Map.of(
+        "https://example.com/1.atom",
+        () -> httpDataOf(resourceStream("books_and_covers.xml"))
+      ));
+
+    final OPDSRetrieverProviderType retrievers =
+      this.retrievers(mock_http);
+    final OPDSRetrieverType retriever =
+      retrievers.create(this.exec);
+
+    final OPDSGetConfiguration config =
+      OPDSGetConfiguration.builder()
+        .setOutput(this.output)
+        .setFetchedKinds(List.of())
+        .setRemoteURI(URI.create("https://example.com/1.atom"))
+        .build();
+
+    try {
+      retriever.retrieve(config).get();
+    } catch (final InterruptedException e) {
+      throw e;
+    } catch (final ExecutionException e) {
+      throw e.getCause();
+    }
+
+    mock_http.checkAllCalled();
+
+    assertFileExists(this.output.resolve(
+      "feeds/EC7DD5867707ED7B2A7E3A57BCF9994E1178AEF0B8C18977FB1011AD10709FA0.atom"));
+    assertFileDoesNotExist(this.output.resolve("images"));
+    assertFileDoesNotExist(this.output.resolve("books"));
+
+    Assert.assertEquals(
+      "Only one file must have downloaded",
+      1L,
+      Files.list(this.output.resolve("feeds")).count());
+  }
+
+  @Test
   public void testDownloadBooksAndCoversFromRealServer()
+    throws Throwable
+  {
+    final OPDSRetrieverProviderType retrievers =
+      this.retrievers(new OPDSHTTPDefault());
+    final OPDSRetrieverType retriever =
+      retrievers.create(this.exec);
+
+    final OPDSGetConfiguration config =
+      OPDSGetConfiguration.builder()
+        .setOutput(this.output)
+        .setFetchedKinds(List.of())
+        .setRemoteURI(URI.create("http://localhost:" + HTTPD_PORT + "/feed.atom"))
+        .build();
+
+    try {
+      retriever.retrieve(config).get();
+    } catch (final InterruptedException e) {
+      throw e;
+    } catch (final ExecutionException e) {
+      throw e.getCause();
+    }
+
+    assertFileExists(this.output.resolve(
+      "feeds/26A1A7550A125B02EB199F90C85C37CEEFEFF046FD0A7A90F46EB9B50DEEB857.atom"));
+    assertFileDoesNotExist(this.output.resolve("images"));
+    assertFileDoesNotExist(this.output.resolve("books"));
+
+    Assert.assertEquals(
+      "Only one file must have downloaded",
+      1L,
+      Files.list(this.output.resolve("feeds")).count());
+  }
+
+  @Test
+  public void testDownloadNoBooksAndCoversFromRealServer()
     throws Throwable
   {
     final OPDSRetrieverProviderType retrievers =
@@ -472,6 +551,13 @@ public abstract class OPDSRetrieverContract
     Assert.assertTrue(
       "File " + path + " must exist and be a regular file",
       Files.isRegularFile(path));
+  }
+
+  private static void assertFileDoesNotExist(final Path path)
+  {
+    Assert.assertTrue(
+      "File " + path + " must not exist",
+      !Files.exists(path));
   }
 
   private static InputStream resourceStream(final String name)

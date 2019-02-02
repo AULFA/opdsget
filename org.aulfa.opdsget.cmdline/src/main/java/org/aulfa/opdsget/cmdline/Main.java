@@ -8,6 +8,7 @@ import com.beust.jcommander.ParameterException;
 import org.aulfa.opdsget.api.OPDSAuthenticationPatternMappedParser;
 import org.aulfa.opdsget.api.OPDSAuthenticationType;
 import org.aulfa.opdsget.api.OPDSGetConfiguration;
+import org.aulfa.opdsget.api.OPDSGetKind;
 import org.aulfa.opdsget.api.OPDSHTTPDefault;
 import org.aulfa.opdsget.api.OPDSRetrieverType;
 import org.aulfa.opdsget.api.OPDSURIRewriters;
@@ -22,12 +23,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The main command line program.
@@ -142,6 +147,12 @@ public final class Main
       description = "The scheme that will be used for rewritten URIs",
       required = false)
     private String uri_rewrite_scheme = "file";
+
+    @Parameter(
+      names = "--exclude-content-kind",
+      description = "The kind of content that will not be downloaded (Specify multiple times for multiple kinds)",
+      required = false)
+    private List<String> exclude_content_kinds = List.of();
   }
 
   /**
@@ -168,14 +179,37 @@ public final class Main
       jcommander.usage(sb);
       System.err.println(sb.toString());
       System.exit(1);
+      return;
     }
 
     {
       final ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
-          Logger.ROOT_LOGGER_NAME);
+        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
       root.setLevel(parsed_arguments.log_level.level);
     }
+
+    final List<OPDSGetKind> excluded_kinds;
+    try {
+      excluded_kinds =
+        parsed_arguments.exclude_content_kinds.stream()
+          .map(OPDSGetKind::ofName)
+          .collect(Collectors.toList());
+    } catch (final Exception e) {
+      LOG.error("could not parse one or more content kinds: {}", e.getMessage());
+      final StringBuilder sb = new StringBuilder(128);
+      jcommander.usage(sb);
+      System.err.println(sb.toString());
+      System.exit(1);
+      return;
+    }
+
+    final Set<OPDSGetKind> included_kinds =
+      Stream.of(OPDSGetKind.values())
+        .filter(kind -> !excluded_kinds.contains(kind))
+        .collect(Collectors.toSet());
+
+    LOG.debug("excluding content kinds: {}", excluded_kinds);
+    LOG.debug("including content kinds: {}", included_kinds);
 
     final ExecutorService exec =
       Executors.newFixedThreadPool(
@@ -191,6 +225,7 @@ public final class Main
         OPDSGetConfiguration.builder()
           .setOutput(parsed_arguments.output_directory)
           .setRemoteURI(parsed_arguments.feed)
+          .setFetchedKinds(included_kinds)
           .setUriRewriter(OPDSURIRewriters.namedSchemeRewriter(
             parsed_arguments.uri_rewrite_scheme,
             parsed_arguments.output_directory))

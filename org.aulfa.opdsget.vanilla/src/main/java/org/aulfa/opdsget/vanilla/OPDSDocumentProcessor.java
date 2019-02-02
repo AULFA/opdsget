@@ -3,6 +3,7 @@ package org.aulfa.opdsget.vanilla;
 import org.aulfa.opdsget.api.OPDSDocumentProcessed;
 import org.aulfa.opdsget.api.OPDSDocumentProcessorType;
 import org.aulfa.opdsget.api.OPDSGetConfiguration;
+import org.aulfa.opdsget.api.OPDSGetKind;
 import org.aulfa.opdsget.api.OPDSLocalFile;
 import org.aulfa.opdsget.api.OPDSURIHashing;
 import org.slf4j.Logger;
@@ -154,20 +155,24 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
         case "http://opds-spec.org/image":
         case "http://opds-spec.org/image/thumbnail": {
-          final URI target = URI.create(link.getAttribute("href"));
-          final Path path = configuration.imageFileHashed(target);
-          final OPDSLocalFile file = OPDSLocalFile.of(target, path);
-          images.put(target, file);
-          rewriteLinkTarget(rewriter, link, file);
+          if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_IMAGES)) {
+            final URI target = URI.create(link.getAttribute("href"));
+            final Path path = configuration.imageFileHashed(target);
+            final OPDSLocalFile file = OPDSLocalFile.of(target, path);
+            images.put(target, file);
+            rewriteLinkTarget(rewriter, link, file);
+          }
           break;
         }
 
         case "http://opds-spec.org/acquisition/open-access": {
-          final URI target = URI.create(link.getAttribute("href"));
-          final Path path = configuration.bookFileHashed(target);
-          final OPDSLocalFile file = OPDSLocalFile.of(target, path);
-          books.put(target, file);
-          rewriteLinkTarget(rewriter, link, file);
+          if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_BOOKS)) {
+            final URI target = URI.create(link.getAttribute("href"));
+            final Path path = configuration.bookFileHashed(target);
+            final OPDSLocalFile file = OPDSLocalFile.of(target, path);
+            books.put(target, file);
+            rewriteLinkTarget(rewriter, link, file);
+          }
           break;
         }
 
