@@ -129,6 +129,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
       final String relation = link.getAttribute("rel");
       switch (relation) {
+        case "collection":
         case "alternate": {
           final String type = link.getAttribute("type");
           if (type != null && type.contains("application/atom+xml")) {
