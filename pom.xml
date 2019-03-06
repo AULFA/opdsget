@@ -12,31 +12,31 @@
     <version>2.0.0</version>
   </parent>
 
-  <groupId>org.aulfa</groupId>
-  <artifactId>org.aulfa.opdsget</artifactId>
+  <groupId>au.org.libraryforall</groupId>
+  <artifactId>au.org.libraryforall.opdsget</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>org.aulfa.opdsget</name>
+  <name>au.org.libraryforall.opdsget</name>
   <description>OPDS offline mirroring tool</description>
   <url>http://github.com/AULFA/opdsget</url>
 
   <modules>
-    <module>org.aulfa.opdsget.api</module>
-    <module>org.aulfa.opdsget.tests</module>
-    <module>org.aulfa.opdsget.checkstyle</module>
-    <module>org.aulfa.opdsget.vanilla</module>
-    <module>org.aulfa.opdsget.cmdline</module>
+    <module>au.org.libraryforall.opdsget.api</module>
+    <module>au.org.libraryforall.opdsget.tests</module>
+    <module>au.org.libraryforall.opdsget.checkstyle</module>
+    <module>au.org.libraryforall.opdsget.vanilla</module>
+    <module>au.org.libraryforall.opdsget.cmdline</module>
   </modules>
 
   <properties>
-    <io7m.checkstyle.artifact>org.aulfa.opdsget.checkstyle</io7m.checkstyle.artifact>
-    <io7m.checkstyle.path>/org/aulfa/opdsget/checkstyle/checkstyle.xml</io7m.checkstyle.path>
+    <io7m.checkstyle.artifact>au.org.libraryforall.opdsget.checkstyle</io7m.checkstyle.artifact>
+    <io7m.checkstyle.path>/au/org/libraryforall/opdsget/checkstyle/checkstyle.xml</io7m.checkstyle.path>
     <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
 
     <io7m.maven-surefire-plugin.version>3.0.0-M1</io7m.maven-surefire-plugin.version>
     <io7m.jacoco-maven-plugin.version>0.8.2</io7m.jacoco-maven-plugin.version>
-    <org.aulfa.org.immutables.version>2.6.0-alpha1</org.aulfa.org.immutables.version>
+    <au.org.libraryforall.org.immutables.version>2.6.0-alpha1</au.org.libraryforall.org.immutables.version>
   </properties>
 
   <inceptionYear>2018</inceptionYear>
@@ -98,7 +98,7 @@
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
-        <version>${org.aulfa.org.immutables.version}</version>
+        <version>${au.org.libraryforall.org.immutables.version}</version>
       </dependency>
 
       <dependency>
