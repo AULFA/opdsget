@@ -54,7 +54,7 @@ To download a feed `http://example.com/feed.atom` to directory
 authentication, simply run the following:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out
 ```
@@ -70,7 +70,7 @@ http://example.com/feed.atom
 --output-directory
 /tmp/out
 
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar @arguments.txt
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar @arguments.txt
 ```
 
 ## Archiving/Rewriting
@@ -84,7 +84,7 @@ fixed values in order to help ensure reproducible results. To produce
 a zip file `/tmp/out.zip`, use the `--output-archive` option:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip
@@ -105,7 +105,7 @@ to bundled content in a manner distinct from non-bundled remote content.
 The `--uri-rewrite-scheme` is used to specify the scheme:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --uri-rewrite-scheme bundled-example
@@ -121,17 +121,17 @@ will cause `opdsget` to avoid downloading book images, avoid downloading
 books, and avoid downloading anything other than feeds, respectively:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --output-directory /tmp/out
 
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind books \
   --output-directory /tmp/out
 
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --exclude-content-kind books \
@@ -194,7 +194,7 @@ Assuming the above example authentication file in `authentication.map`,
 the feed can be fetched using authentication information with:
 
 ```
-$ java -jar org.aulfa.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip \
