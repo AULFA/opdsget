@@ -12,6 +12,7 @@ An OPDS feed retrieval and rewriting tool.
 * Byte-for-byte reproducible feed archives (including fixing of time-related fields from feeds)
 * Well designed modular API for use in Java 9 programs
 * Command line interface
+* EPUB squashing with [epubsquash](https://github.com/AULFA/epubsquash)
 
 ## Requirements
 
@@ -46,6 +47,15 @@ Usage: opdsget [options]
       The zip archive that will be created for the feed
   * --output-directory
       The directory that will contain the downloaded feed objects
+    --squash
+      True if EPUB files should be squashed to reduce their size
+      Default: false
+    --squash-image-max-height
+      The maximum height of images
+      Default: 1170.0
+    --squash-image-max-width
+      The maximum width of images
+      Default: 1600.0
     --uri-rewrite-scheme
       The scheme that will be used for rewritten URIs
       Default: file
@@ -202,4 +212,14 @@ $ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --output-archive /tmp/out.zip \
   --authentication authentication.map
 ```
+
+## Squashing
+
+EPUB files can optionally be _squashed_ with
+[epubsquash](https://github.com/AULFA/epubsquash).  Squashing
+essentially unpacks EPUB files, compresses overly-large images,
+and then repacks the EPUB resulting in a hopefully-much-smaller
+file. Use the `--squash` parameter to enable squashing, and the
+`--squash-image-max-width` and `--squash-image-max-height` parameters
+to control how images should be resized.
 
