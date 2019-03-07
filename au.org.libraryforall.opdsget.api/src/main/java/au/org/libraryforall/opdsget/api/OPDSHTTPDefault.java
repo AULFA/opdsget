@@ -117,7 +117,12 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
             .append(code)
             .append(" ")
             .append(message)
-            .toString(), code, message);
+            .append(System.lineSeparator())
+            .append("  URI: ")
+            .append(uri)
+            .append(System.lineSeparator())
+            .toString(),
+          code, message);
       }
 
       return OPDSHTTPData.of(
