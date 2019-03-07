@@ -217,7 +217,7 @@ $ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
 
 EPUB files can optionally be _squashed_ with
 [epubsquash](https://github.com/AULFA/epubsquash).  Squashing
-essentially unpacks EPUB files, compresses overly-large images,
+essentially unpacks an EPUB file, compresses overly-large images,
 and then repacks the EPUB resulting in a hopefully-much-smaller
 file. Use the `--squash` parameter to enable squashing, and the
 `--squash-image-max-width` and `--squash-image-max-height` parameters
