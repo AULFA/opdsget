@@ -13,7 +13,7 @@ An OPDS feed retrieval and rewriting tool.
 
 ## Requirements
 
-* Java 9+
+* Java 11+
 
 ## How To Build
 
