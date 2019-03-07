@@ -3,6 +3,8 @@ opdsget
 
 An OPDS feed retrieval and rewriting tool.
 
+![opdsget](./src/site/resources/opdsget.jpg?raw=true)
+
 ## Features
 
 * Efficient parallel downloading of large feeds
