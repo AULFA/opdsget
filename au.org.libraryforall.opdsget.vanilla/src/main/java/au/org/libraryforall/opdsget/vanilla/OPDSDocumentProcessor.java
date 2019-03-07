@@ -152,6 +152,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
       final String relation = link.getAttribute("rel");
       switch (relation) {
+        case "subsection":
         case "collection":
         case "alternate": {
           final String type = link.getAttribute("type");
@@ -189,6 +190,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
           break;
         }
 
+        case "http://opds-spec.org/acquisition":
         case "http://opds-spec.org/acquisition/open-access": {
           if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_BOOKS)) {
             final URI target = constructLinkURI(document, link);
