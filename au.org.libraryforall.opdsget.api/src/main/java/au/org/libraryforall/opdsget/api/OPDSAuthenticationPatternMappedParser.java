@@ -64,13 +64,13 @@ public final class OPDSAuthenticationPatternMappedParser
     Objects.requireNonNull(stream, "stream");
 
     final List<OPDSMatchingAuthentication> patterns = new ArrayList<>(8);
-    try (BufferedReader reader =
+    try (var reader =
            new BufferedReader(new InputStreamReader(stream, UTF_8))) {
 
-      int line_number = 1;
+      var line_number = 1;
       while (true) {
         try {
-          final String line = reader.readLine();
+          final var line = reader.readLine();
           if (line == null) {
             return OPDSAuthenticationPatternMapped.of(patterns);
           }
@@ -79,12 +79,12 @@ public final class OPDSAuthenticationPatternMappedParser
             continue;
           }
 
-          final String trimmed = line.trim();
+          final var trimmed = line.trim();
           if (trimmed.isEmpty()) {
             continue;
           }
 
-          final List<String> segments = List.of(WHITESPACE.split(trimmed));
+          final var segments = List.of(WHITESPACE.split(trimmed));
           if (segments.size() != 2) {
             throw syntaxError(
               file,
@@ -93,9 +93,9 @@ public final class OPDSAuthenticationPatternMappedParser
               line);
           }
 
-          final Pattern pattern =
+          final var pattern =
             Pattern.compile(segments.get(0));
-          final Optional<OPDSAuthenticationType> auth =
+          final var auth =
             parseAuthentication(file, line_number, segments.get(1));
 
           patterns.add(OPDSMatchingAuthentication.of(pattern.pattern(), auth));
@@ -117,7 +117,7 @@ public final class OPDSAuthenticationPatternMappedParser
     }
 
     if (text.startsWith("basic:")) {
-      final List<String> segments = List.of(text.split(":"));
+      final var segments = List.of(text.split(":"));
       if (segments.size() != 3) {
         throw syntaxError(
           file,

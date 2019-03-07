@@ -38,8 +38,8 @@ public final class OPDSURIHashing
 
   private static String hexShow(final byte[] data)
   {
-    final StringBuilder sb = new StringBuilder(data.length * 2);
-    for (final byte b : data) {
+    final var sb = new StringBuilder(data.length * 2);
+    for (final var b : data) {
       sb.append(HEX_CODE[((int) b >> 4) & 0xF]);
       sb.append(HEX_CODE[((int) b & 0xF)]);
     }
@@ -57,7 +57,7 @@ public final class OPDSURIHashing
     Objects.requireNonNull(uri, "uri");
 
     try {
-      final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      final var digest = MessageDigest.getInstance("SHA-256");
       return hexShow(digest.digest(uri.toString().getBytes(UTF_8)));
     } catch (final NoSuchAlgorithmException e) {
       throw new IllegalStateException(e);

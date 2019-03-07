@@ -22,7 +22,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -79,7 +78,7 @@ public final class OPDSXMLParsers
     Objects.requireNonNull(stream, "stream");
 
     LOG.debug("parse {}", uri);
-    final DocumentBuilder builder = this.builders.newDocumentBuilder();
+    final var builder = this.builders.newDocumentBuilder();
     try {
       return builder.parse(stream, uri.toString());
     } finally {

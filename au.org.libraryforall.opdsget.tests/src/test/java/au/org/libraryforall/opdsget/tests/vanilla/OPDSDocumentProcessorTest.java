@@ -79,29 +79,29 @@ public final class OPDSDocumentProcessorTest
   public void testRewriteSimple()
     throws Exception
   {
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("http://www.example.com"))
         .build();
 
-    final Document document = parse("links.xml");
+    final var document = parse("links.xml");
 
-    final NodeList updateds_before =
+    final var updateds_before =
       (NodeList) this.xpath_updated.evaluate(document, XPathConstants.NODESET);
 
     Assert.assertTrue(
       "Document contains 'updated' elements",
       (long) updateds_before.getLength() > 0L);
 
-    final NodeList links_before =
+    final var links_before =
       (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
 
     Assert.assertTrue(
       "Document contains more than five links",
       (long) links_before.getLength() > 5L);
 
-    final OPDSDocumentProcessed result =
+    final var result =
       this.processor.process(config, document);
 
     Assert.assertTrue(
@@ -115,7 +115,7 @@ public final class OPDSDocumentProcessorTest
     Assert.assertTrue(
       result.books().containsKey(URI.create("http://example.com/0.epub")));
 
-    final NodeList updateds_after =
+    final var updateds_after =
       (NodeList) this.xpath_updated.evaluate(document, XPathConstants.NODESET);
 
     Assert.assertEquals(
@@ -124,13 +124,13 @@ public final class OPDSDocumentProcessorTest
       (long) updateds_after.getLength());
 
     {
-      for (int index = 0; index < updateds_after.getLength(); ++index) {
-        final Element e = (Element) updateds_after.item(index);
+      for (var index = 0; index < updateds_after.getLength(); ++index) {
+        final var e = (Element) updateds_after.item(index);
         Assert.assertEquals("2000-01-01T00:00:00Z", e.getTextContent());
       }
     }
 
-    final NodeList links_after =
+    final var links_after =
       (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
 
     Assert.assertEquals(
@@ -142,14 +142,14 @@ public final class OPDSDocumentProcessorTest
   private static Document parse(final String name)
     throws Exception
   {
-    final URL url =
+    final var url =
       OPDSDocumentProcessorTest.class.getResource(
         "/au/org/libraryforall/opdsget/tests/vanilla/" + name);
     if (url == null) {
       throw new FileNotFoundException(name);
     }
 
-    try (InputStream stream = url.openStream()) {
+    try (var stream = url.openStream()) {
       return new OPDSXMLParsers().parse(url.toURI(), stream);
     }
   }

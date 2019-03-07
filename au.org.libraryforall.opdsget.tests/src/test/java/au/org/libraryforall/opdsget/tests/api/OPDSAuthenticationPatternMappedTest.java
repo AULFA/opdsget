@@ -32,7 +32,7 @@ public final class OPDSAuthenticationPatternMappedTest
   @Test
   public void testEmpty()
   {
-    final OPDSAuthenticationPatternMapped empty =
+    final var empty =
       OPDSAuthenticationPatternMapped.of(List.of());
 
     Assert.assertEquals(
@@ -46,7 +46,7 @@ public final class OPDSAuthenticationPatternMappedTest
     final OPDSAuthenticationType auth =
       OPDSAuthenticationBasic.of("someone", "abcdefgh");
 
-    final OPDSAuthenticationPatternMapped empty =
+    final var empty =
       OPDSAuthenticationPatternMapped.of(List.of(
         OPDSMatchingAuthentication.of(
           "http[s]?://(.*\\.)example\\.com",
@@ -77,7 +77,7 @@ public final class OPDSAuthenticationPatternMappedTest
     final OPDSAuthenticationType auth2 =
       OPDSAuthenticationBasic.of("2", "2");
 
-    final OPDSAuthenticationPatternMapped empty =
+    final var empty =
       OPDSAuthenticationPatternMapped.of(List.of(
         OPDSMatchingAuthentication.of(
           "http[s]?://(.*\\.)example\\.com/a",

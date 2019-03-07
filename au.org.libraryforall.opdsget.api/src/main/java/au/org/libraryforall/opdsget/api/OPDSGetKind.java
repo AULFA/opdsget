@@ -55,7 +55,7 @@ public enum OPDSGetKind
   {
     Objects.requireNonNull(name, "name");
 
-    for (final OPDSGetKind kind : OPDSGetKind.values()) {
+    for (final var kind : OPDSGetKind.values()) {
       if (Objects.equals(kind.name, name)) {
         return kind;
       }

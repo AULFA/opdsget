@@ -53,15 +53,15 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
   {
     switch (auth.kind()) {
       case AUTHENTICATION_BASIC: {
-        final OPDSAuthenticationBasic basic = (OPDSAuthenticationBasic) auth;
-        final String text =
+        final var basic = (OPDSAuthenticationBasic) auth;
+        final var text =
           new StringBuilder(64)
             .append(basic.user())
             .append(":")
             .append(basic.password())
             .toString();
 
-        final String encoded =
+        final var encoded =
           Base64.getEncoder()
             .encodeToString(text.getBytes(StandardCharsets.US_ASCII));
 
@@ -80,15 +80,15 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
     try {
       LOG.debug("GET {}", uri);
 
-      final URL url = uri.toURL();
-      final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      final var url = uri.toURL();
+      final var connection = (HttpURLConnection) url.openConnection();
       connection.setInstanceFollowRedirects(false);
       connection.setRequestMethod("GET");
       connection.setRequestProperty("User-Agent", "au.org.libraryforall.opdsget");
 
       auth_opt.ifPresent(auth -> configureConnectionAuth(connection, auth));
 
-      final int code = connection.getResponseCode();
+      final var code = connection.getResponseCode();
       if (LOG.isDebugEnabled()) {
         LOG.debug("GET {} -> {}", uri, Integer.valueOf(code));
       }
@@ -96,9 +96,9 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
       switch (connection.getResponseCode()) {
         case HttpURLConnection.HTTP_MOVED_PERM:
         case HttpURLConnection.HTTP_MOVED_TEMP:
-          final String location = URLDecoder.decode(connection.getHeaderField("Location"), "UTF-8");
-          final URL base = new URL(url.toString());
-          final URL next = new URL(base, location);
+          final var location = URLDecoder.decode(connection.getHeaderField("Location"), "UTF-8");
+          final var base = new URL(url.toString());
+          final var next = new URL(base, location);
 
           try {
             return this.get(
@@ -110,7 +110,7 @@ public final class OPDSHTTPDefault implements OPDSHTTPType
       }
 
       if (code >= 400) {
-        final String message = connection.getResponseMessage();
+        final var message = connection.getResponseMessage();
         throw new OPDSHTTPException(
           new StringBuilder(128)
             .append("GET failed: ")

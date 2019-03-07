@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 
 /**
  * An authentication matcher that works from a list of patterns. URIs will be matched against the
@@ -57,12 +56,12 @@ public interface OPDSAuthenticationPatternMappedType
   {
     Objects.requireNonNull(uri, "uri");
 
-    final List<OPDSMatchingAuthentication> patterns = this.patterns();
+    final var patterns = this.patterns();
 
-    final String uri_text = uri.toString();
-    for (int index = 0; index < patterns.size(); ++index) {
-      final OPDSMatchingAuthentication uri_matcher = patterns.get(index);
-      final Matcher matcher = uri_matcher.pattern().matcher(uri_text);
+    final var uri_text = uri.toString();
+    for (var index = 0; index < patterns.size(); ++index) {
+      final var uri_matcher = patterns.get(index);
+      final var matcher = uri_matcher.pattern().matcher(uri_text);
       if (matcher.matches()) {
         if (LOG.isTraceEnabled()) {
           LOG.trace("{} matches {}",

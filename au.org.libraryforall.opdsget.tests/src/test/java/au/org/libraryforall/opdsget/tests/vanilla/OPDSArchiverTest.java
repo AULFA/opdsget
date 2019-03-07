@@ -79,7 +79,7 @@ public final class OPDSArchiverTest
     Assert.assertTrue(
       this.file_tmp + " must not exist", !Files.exists(this.file_tmp));
 
-    final ZipFile zip = new ZipFile(this.file.toFile());
+    final var zip = new ZipFile(this.file.toFile());
     final List<ZipEntry> entries =
       zip.stream()
         .collect(Collectors.toList());
@@ -99,7 +99,7 @@ public final class OPDSArchiverTest
 
     OPDSArchiver.createArchive(this.output, this.file, this.file_tmp);
 
-    final ZipFile zip = new ZipFile(this.file.toFile());
+    final var zip = new ZipFile(this.file.toFile());
     final List<ZipEntry> entries =
       zip.stream()
         .collect(Collectors.toList());

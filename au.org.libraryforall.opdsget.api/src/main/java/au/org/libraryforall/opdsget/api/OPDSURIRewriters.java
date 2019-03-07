@@ -59,7 +59,7 @@ public final class OPDSURIRewriters
     Objects.requireNonNull(output, "output");
 
     return local_file -> {
-      final Path file = local_file.file();
+      final var file = local_file.file();
       return URI.create(scheme + "://" + output.relativize(file));
     };
   }

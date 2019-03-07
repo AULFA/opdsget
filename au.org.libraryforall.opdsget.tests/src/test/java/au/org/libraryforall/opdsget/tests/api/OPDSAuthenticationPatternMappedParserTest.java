@@ -42,13 +42,13 @@ public final class OPDSAuthenticationPatternMappedParserTest
   public void testEmpty()
     throws Exception
   {
-    try (InputStream stream = resourceStream("auth-empty.map")) {
-      final OPDSAuthenticationPatternMapped received =
+    try (var stream = resourceStream("auth-empty.map")) {
+      final var received =
         OPDSAuthenticationPatternMappedParser.parse(
           URI.create("auth-empty.map"),
           stream);
 
-      final OPDSAuthenticationPatternMapped expected =
+      final var expected =
         OPDSAuthenticationPatternMapped.of(new ArrayList<>());
 
       Assert.assertEquals(expected, received);
@@ -59,13 +59,13 @@ public final class OPDSAuthenticationPatternMappedParserTest
   public void testSingleNone()
     throws Exception
   {
-    try (InputStream stream = resourceStream("auth-single-none.map")) {
-      final OPDSAuthenticationPatternMapped received =
+    try (var stream = resourceStream("auth-single-none.map")) {
+      final var received =
         OPDSAuthenticationPatternMappedParser.parse(
           URI.create("auth-single-none.map"),
           stream);
 
-      final OPDSAuthenticationPatternMapped expected =
+      final var expected =
         OPDSAuthenticationPatternMapped.of(
           List.of(
             OPDSMatchingAuthentication.of(
@@ -80,13 +80,13 @@ public final class OPDSAuthenticationPatternMappedParserTest
   public void testMultipleBasic()
     throws Exception
   {
-    try (InputStream stream = resourceStream("auth-multi-basic.map")) {
-      final OPDSAuthenticationPatternMapped received =
+    try (var stream = resourceStream("auth-multi-basic.map")) {
+      final var received =
         OPDSAuthenticationPatternMappedParser.parse(
           URI.create("auth-multi-basic.map"),
           stream);
 
-      final OPDSAuthenticationPatternMapped expected =
+      final var expected =
         OPDSAuthenticationPatternMapped.of(
           List.of(
             OPDSMatchingAuthentication.of(
@@ -110,7 +110,7 @@ public final class OPDSAuthenticationPatternMappedParserTest
   public void testUnparseable0()
     throws Exception
   {
-    try (InputStream stream = resourceStream("auth-bad-unparseable-0.map")) {
+    try (var stream = resourceStream("auth-bad-unparseable-0.map")) {
       this.exception.expect(ParseException.class);
       OPDSAuthenticationPatternMappedParser.parse(
         URI.create("auth-bad-unparseable-0.map"), stream);
@@ -121,7 +121,7 @@ public final class OPDSAuthenticationPatternMappedParserTest
   public void testUnparseable1()
     throws Exception
   {
-    try (InputStream stream = resourceStream("auth-bad-unparseable-1.map")) {
+    try (var stream = resourceStream("auth-bad-unparseable-1.map")) {
       this.exception.expect(ParseException.class);
       OPDSAuthenticationPatternMappedParser.parse(
         URI.create("auth-bad-unparseable-1.map"), stream);
@@ -132,7 +132,7 @@ public final class OPDSAuthenticationPatternMappedParserTest
   public void testUnparseable2()
     throws Exception
   {
-    try (InputStream stream = resourceStream("auth-bad-unparseable-2.map")) {
+    try (var stream = resourceStream("auth-bad-unparseable-2.map")) {
       this.exception.expect(ParseException.class);
       OPDSAuthenticationPatternMappedParser.parse(
         URI.create("auth-bad-unparseable-2.map"), stream);
@@ -142,7 +142,7 @@ public final class OPDSAuthenticationPatternMappedParserTest
   private static InputStream resourceStream(final String name)
   {
     try {
-      final URL url =
+      final var url =
         OPDSAuthenticationPatternMappedParserTest.class.getResource(
           "/au/org/libraryforall/opdsget/tests/api/" + name);
       if (url == null) {

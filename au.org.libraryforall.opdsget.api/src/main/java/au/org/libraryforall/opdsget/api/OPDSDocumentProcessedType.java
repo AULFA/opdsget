@@ -76,19 +76,19 @@ public interface OPDSDocumentProcessedType
   @Value.Check
   default void checkPreconditions()
   {
-    for (final URI uri : this.feeds().keySet()) {
+    for (final var uri : this.feeds().keySet()) {
       if (!uri.isAbsolute()) {
         throw new IllegalArgumentException("Non-absolute feed URI: " + uri);
       }
     }
 
-    for (final URI uri : this.images().keySet()) {
+    for (final var uri : this.images().keySet()) {
       if (!uri.isAbsolute()) {
         throw new IllegalArgumentException("Non-absolute image URI: " + uri);
       }
     }
 
-    for (final URI uri : this.books().keySet()) {
+    for (final var uri : this.books().keySet()) {
       if (!uri.isAbsolute()) {
         throw new IllegalArgumentException("Non-absolute book URI: " + uri);
       }

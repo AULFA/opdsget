@@ -81,7 +81,7 @@ public abstract class OPDSRetrieverContract
     this.output_archive_relative = Paths.get("temporary.zip");
 
     this.exec = Executors.newFixedThreadPool(8, r -> {
-      final Thread th = new Thread(r);
+      final var th = new Thread(r);
       th.setName("au.org.libraryforall.opdsget.io[" + th.getId() + "]");
       return th;
     });
@@ -129,7 +129,7 @@ public abstract class OPDSRetrieverContract
   {
     try {
       if (Files.isDirectory(this.output_relative)) {
-        Files.walkFileTree(this.output_relative, new SimpleFileVisitor<Path>()
+        Files.walkFileTree(this.output_relative, new SimpleFileVisitor<>()
         {
           @Override
           public FileVisitResult visitFile(
@@ -179,12 +179,12 @@ public abstract class OPDSRetrieverContract
       throw new OPDSHTTPException("404 - NOT FOUND", 404, "NOT FOUND");
     };
 
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(mock_http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("https://example.com/catalog.atom"))
@@ -206,18 +206,18 @@ public abstract class OPDSRetrieverContract
   public void testImmediateUnparseable()
     throws Throwable
   {
-    final MockingHTTP mock_http =
+    final var mock_http =
       new MockingHTTP(Map.of(
         "https://example.com/catalog.atom",
         () -> httpDataOf(resourceStream("notxml.txt"))
       ));
 
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(mock_http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("https://example.com/catalog.atom"))
@@ -238,7 +238,7 @@ public abstract class OPDSRetrieverContract
   public void testFollowNextLinks()
     throws Throwable
   {
-    final MockingHTTP mock_http =
+    final var mock_http =
       new MockingHTTP(Map.of(
         "https://example.com/1.atom",
         () -> httpDataOf(resourceStream("1.xml")),
@@ -248,12 +248,12 @@ public abstract class OPDSRetrieverContract
         () -> httpDataOf(resourceStream("3.xml"))
       ));
 
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(mock_http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("https://example.com/1.atom"))
@@ -294,7 +294,7 @@ public abstract class OPDSRetrieverContract
       final Optional<OPDSAuthenticationType> auth)
     {
       synchronized (this.lock) {
-        final String text = uri.toString();
+        final var text = uri.toString();
         if (this.called.containsKey(text)) {
           throw new IllegalStateException("Already called: " + text);
         }
@@ -311,7 +311,7 @@ public abstract class OPDSRetrieverContract
     public void checkAllCalled()
     {
       synchronized (this.lock) {
-        for (final String name : this.streams.keySet()) {
+        for (final var name : this.streams.keySet()) {
           if (!this.called.containsKey(name)) {
             throw new IllegalStateException("Failed to call: " + name);
           }
@@ -324,7 +324,7 @@ public abstract class OPDSRetrieverContract
   public void testDownloadBooksAndCovers()
     throws Throwable
   {
-    final MockingHTTP mock_http =
+    final var mock_http =
       new MockingHTTP(Map.of(
         "https://example.com/1.atom",
         () -> httpDataOf(resourceStream("books_and_covers.xml")),
@@ -342,12 +342,12 @@ public abstract class OPDSRetrieverContract
         () -> httpDataOf(stringStream("epub_1.txt"))
       ));
 
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(mock_http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("https://example.com/1.atom"))
@@ -381,18 +381,18 @@ public abstract class OPDSRetrieverContract
   public void testDownloadNoBooksOrCovers()
     throws Throwable
   {
-    final MockingHTTP mock_http =
+    final var mock_http =
       new MockingHTTP(Map.of(
         "https://example.com/1.atom",
         () -> httpDataOf(resourceStream("books_and_covers.xml"))
       ));
 
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(mock_http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setFetchedKinds(List.of())
@@ -424,12 +424,12 @@ public abstract class OPDSRetrieverContract
   public void testDownloadBooksAndCoversFromRealServer()
     throws Throwable
   {
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(new OPDSHTTPDefault());
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setFetchedKinds(List.of())
@@ -459,12 +459,12 @@ public abstract class OPDSRetrieverContract
   public void testDownloadNoBooksAndCoversFromRealServer()
     throws Throwable
   {
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(new OPDSHTTPDefault());
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("http://localhost:" + HTTPD_PORT + "/feed.atom"))
@@ -498,7 +498,7 @@ public abstract class OPDSRetrieverContract
   public void testBug2()
     throws Throwable
   {
-    final MockingHTTP mock_http =
+    final var mock_http =
       new MockingHTTP(Map.of(
         "https://example.com/1.atom",
         () -> httpDataOf(resourceStream("books_and_covers.xml")),
@@ -516,12 +516,12 @@ public abstract class OPDSRetrieverContract
         () -> httpDataOf(stringStream("epub_1.txt"))
       ));
 
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(mock_http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output_relative)
         .setOutputArchive(this.output_archive_relative)
@@ -558,12 +558,12 @@ public abstract class OPDSRetrieverContract
   {
     final OPDSHTTPType http =
       new OPDSHTTPDefault();
-    final OPDSRetrieverProviderType retrievers =
+    final var retrievers =
       this.retrievers(http);
-    final OPDSRetrieverType retriever =
+    final var retriever =
       retrievers.create(this.exec);
 
-    final OPDSGetConfiguration config =
+    final var config =
       OPDSGetConfiguration.builder()
         .setOutput(this.output)
         .setRemoteURI(URI.create("http://feedbooks.github.io/opds-test-catalog/catalog/acquisition/main.xml"))
@@ -599,7 +599,7 @@ public abstract class OPDSRetrieverContract
   private static InputStream resourceStream(final String name)
   {
     try {
-      final URL url =
+      final var url =
         OPDSDocumentProcessorTest.class.getResource(
           "/au/org/libraryforall/opdsget/tests/vanilla/" + name);
       if (url == null) {

@@ -35,7 +35,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -89,13 +88,29 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
   private static void removeElement(final Node element)
   {
-    final Node parent = element.getParentNode();
+    final var parent = element.getParentNode();
     parent.removeChild(element);
   }
 
   /*
    * Remove all "updated" elements from the document.
    */
+
+  private static URI makeAbsolute(
+    final URI base,
+    final URI input)
+  {
+    return base.resolve(input);
+  }
+
+  private static URI constructLinkURI(
+    final Document document,
+    final Element link)
+  {
+    return makeAbsolute(
+      URI.create(document.getDocumentURI()),
+      URI.create(link.getAttribute("href")));
+  }
 
   @Override
   public OPDSDocumentProcessed process(
@@ -113,11 +128,11 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     this.rewriteAndCollectLinks(configuration, document, feeds, images, books);
     this.removeUpdatedElements(document);
 
-    final URI document_uri =
+    final var document_uri =
       URI.create(document.getDocumentURI());
-    final String hash =
+    final var hash =
       OPDSURIHashing.hashOf(document_uri);
-    final Path file =
+    final var file =
       configuration.feedFile(hash + ".atom");
 
     return OPDSDocumentProcessed.builder()
@@ -128,13 +143,6 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
       .build();
   }
 
-  private static URI makeAbsolute(
-    final URI base,
-    final URI input)
-  {
-    return base.resolve(input);
-  }
-
   private void rewriteAndCollectLinks(
     final OPDSGetConfiguration configuration,
     final Document document,
@@ -143,23 +151,23 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     final Map<URI, OPDSLocalFile> books)
     throws XPathExpressionException
   {
-    final NodeList links =
+    final var links =
       (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
 
-    final Function<OPDSLocalFile, URI> rewriter = configuration.uriRewriter();
-    for (int index = 0; index < links.getLength(); ++index) {
-      final Element link = (Element) links.item(index);
+    final var rewriter = configuration.uriRewriter();
+    for (var index = 0; index < links.getLength(); ++index) {
+      final var link = (Element) links.item(index);
 
-      final String relation = link.getAttribute("rel");
+      final var relation = link.getAttribute("rel");
       switch (relation) {
         case "subsection":
         case "collection":
         case "alternate": {
-          final String type = link.getAttribute("type");
+          final var type = link.getAttribute("type");
           if (type != null && type.contains("application/atom+xml")) {
-            final URI target = constructLinkURI(document, link);
-            final Path path = configuration.feedFileHashed(target);
-            final OPDSLocalFile file = OPDSLocalFile.of(target, path);
+            final var target = constructLinkURI(document, link);
+            final var path = configuration.feedFileHashed(target);
+            final var file = OPDSLocalFile.of(target, path);
             feeds.put(target, file);
             rewriteLinkTarget(rewriter, link, file);
           } else {
@@ -170,9 +178,9 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         }
 
         case "next": {
-          final URI target = constructLinkURI(document, link);
-          final Path path = configuration.feedFileHashed(target);
-          final OPDSLocalFile file = OPDSLocalFile.of(target, path);
+          final var target = constructLinkURI(document, link);
+          final var path = configuration.feedFileHashed(target);
+          final var file = OPDSLocalFile.of(target, path);
           feeds.put(target, file);
           rewriteLinkTarget(rewriter, link, file);
           break;
@@ -181,9 +189,9 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         case "http://opds-spec.org/image":
         case "http://opds-spec.org/image/thumbnail": {
           if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_IMAGES)) {
-            final URI target = constructLinkURI(document, link);
-            final Path path = configuration.imageFileHashed(target);
-            final OPDSLocalFile file = OPDSLocalFile.of(target, path);
+            final var target = constructLinkURI(document, link);
+            final var path = configuration.imageFileHashed(target);
+            final var file = OPDSLocalFile.of(target, path);
             images.put(target, file);
             rewriteLinkTarget(rewriter, link, file);
           }
@@ -193,9 +201,9 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         case "http://opds-spec.org/acquisition":
         case "http://opds-spec.org/acquisition/open-access": {
           if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_BOOKS)) {
-            final URI target = constructLinkURI(document, link);
-            final Path path = configuration.bookFileHashed(target);
-            final OPDSLocalFile file = OPDSLocalFile.of(target, path);
+            final var target = constructLinkURI(document, link);
+            final var path = configuration.bookFileHashed(target);
+            final var file = OPDSLocalFile.of(target, path);
             books.put(target, file);
             rewriteLinkTarget(rewriter, link, file);
           }
@@ -211,23 +219,14 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     }
   }
 
-  private static URI constructLinkURI(
-    final Document document,
-    final Element link)
-  {
-    return makeAbsolute(
-      URI.create(document.getDocumentURI()),
-      URI.create(link.getAttribute("href")));
-  }
-
   private void removeUpdatedElements(final Document document)
     throws XPathExpressionException
   {
-    final NodeList updateds =
+    final var updateds =
       (NodeList) this.xpath_updated.evaluate(document, XPathConstants.NODESET);
 
-    for (int index = 0; index < updateds.getLength(); ++index) {
-      final Element updated = (Element) updateds.item(index);
+    for (var index = 0; index < updateds.getLength(); ++index) {
+      final var updated = (Element) updateds.item(index);
       updated.setTextContent("2000-01-01T00:00:00Z");
     }
   }

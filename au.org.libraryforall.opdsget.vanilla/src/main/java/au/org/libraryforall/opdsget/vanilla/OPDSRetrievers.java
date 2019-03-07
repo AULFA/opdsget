@@ -18,29 +18,22 @@ package au.org.libraryforall.opdsget.vanilla;
 
 import au.org.libraryforall.epubsquash.api.EPUBSquasherConfiguration;
 import au.org.libraryforall.epubsquash.api.EPUBSquasherProviderType;
-import au.org.libraryforall.epubsquash.api.EPUBSquasherType;
 import au.org.libraryforall.opdsget.api.OPDSDocumentProcessed;
 import au.org.libraryforall.opdsget.api.OPDSGetConfiguration;
-import au.org.libraryforall.opdsget.api.OPDSHTTPData;
 import au.org.libraryforall.opdsget.api.OPDSHTTPDefault;
 import au.org.libraryforall.opdsget.api.OPDSHTTPType;
 import au.org.libraryforall.opdsget.api.OPDSRetrieverProviderType;
 import au.org.libraryforall.opdsget.api.OPDSRetrieverType;
-import au.org.libraryforall.opdsget.api.OPDSSquashConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -147,11 +140,11 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     {
       Objects.requireNonNull(in_configuration, "configuration");
 
-      final Retrieval retrieval =
+      final var retrieval =
         new Retrieval(in_configuration, this.executor, this.http, this.parsers, this.squashers);
 
       return retrieval
-        .processFeed(in_configuration.remoteURI())
+        .processFeed(Optional.empty(), in_configuration.remoteURI())
         .thenCompose(ignored -> retrieval.squashTask())
         .thenCompose(ignored -> retrieval.archiveFeedTask());
     }
@@ -197,12 +190,14 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
                          .toString());
     }
 
-    private CompletableFuture<Void> processFeed(final URI uri)
+    private CompletableFuture<Void> processFeed(
+      final Optional<OPDSDocumentProcessed> document,
+      final URI uri)
     {
       LOG.debug("processFeed: {}", uri);
 
       return CompletableFuture
-        .supplyAsync(() -> this.processOne(uri), this.executor)
+        .supplyAsync(() -> this.processOne(document, uri), this.executor)
         .thenComposeAsync(
           this::runSubTasksIfNecessary,
           ForkJoinPool.commonPool());
@@ -218,28 +213,28 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     private CompletableFuture<Void> runSubTasks(
       final OPDSDocumentProcessed document)
     {
-      final List<CompletableFuture<Void>> feed_tasks =
+      final var feed_tasks =
         document.feeds()
           .values()
           .stream()
-          .map(f -> this.processFeed(f.uri()))
+          .map(f -> this.processFeed(Optional.of(document), f.uri()))
           .collect(Collectors.toList());
 
-      final List<CompletableFuture<Void>> image_tasks =
+      final var image_tasks =
         document.images()
           .values()
           .stream()
-          .map(f -> this.downloadImageTask(f.uri()))
+          .map(f -> this.downloadImageTask(document, f.uri()))
           .collect(Collectors.toList());
 
-      final List<CompletableFuture<Void>> book_tasks =
+      final var book_tasks =
         document.books()
           .values()
           .stream()
-          .map(f -> this.downloadBookTask(f.uri()))
+          .map(f -> this.downloadBookTask(document, f.uri()))
           .collect(Collectors.toList());
 
-      final List<CompletableFuture<Void>> tasks =
+      final var tasks =
         List.of(feed_tasks, book_tasks, image_tasks)
           .stream()
           .flatMap(List::stream)
@@ -255,15 +250,15 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       final Path path_tmp)
     {
       try {
-        final OPDSHTTPData data =
+        final var data =
           this.http.get(
             uri,
             this.configuration.authenticationSupplier().apply(uri));
 
         Files.createDirectories(path_tmp.getParent());
-        try (OutputStream output =
+        try (var output =
                Files.newOutputStream(path_tmp, CREATE_NEW)) {
-          try (InputStream input = data.stream()) {
+          try (var input = data.stream()) {
             input.transferTo(output);
             Files.move(path_tmp, path, ATOMIC_MOVE, REPLACE_EXISTING);
           }
@@ -276,35 +271,44 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       }
     }
 
-    private void downloadImage(final URI uri)
+    private void downloadImage(
+      final OPDSDocumentProcessed document,
+      final URI uri)
     {
-      final Path path = this.configuration.imageFileHashed(uri);
-      final Path path_tmp = temporaryFile(path);
-      LOG.info("image GET {} -> {}", uri, path);
+      final var path = this.configuration.imageFileHashed(uri);
+      final var path_tmp = temporaryFile(path);
+      LOG.info("image GET {} -> {} (from {})", uri, path, document.file().uri());
       this.downloadFile(uri, path, path_tmp);
     }
 
-    private CompletableFuture<Void> downloadImageTask(final URI uri)
+    private CompletableFuture<Void> downloadImageTask(
+      final OPDSDocumentProcessed document,
+      final URI uri)
     {
       return CompletableFuture
-        .runAsync(() -> this.downloadImage(uri), this.executor);
+        .runAsync(() -> this.downloadImage(document, uri), this.executor);
     }
 
-    private void downloadBook(final URI uri)
+    private void downloadBook(
+      final OPDSDocumentProcessed document,
+      final URI uri)
     {
-      final Path path = this.configuration.bookFileHashed(uri);
-      final Path path_tmp = temporaryFile(path);
-      LOG.info("book GET {} -> {}", uri, path);
+      final var path = this.configuration.bookFileHashed(uri);
+      final var path_tmp = temporaryFile(path);
+      LOG.info("book GET {} -> {} (from {})", uri, path, document.file().uri());
       this.downloadFile(uri, path, path_tmp);
     }
 
-    private CompletableFuture<Void> downloadBookTask(final URI uri)
+    private CompletableFuture<Void> downloadBookTask(
+      final OPDSDocumentProcessed document,
+      final URI uri)
     {
       return CompletableFuture
-        .runAsync(() -> this.downloadBook(uri), this.executor);
+        .runAsync(() -> this.downloadBook(document, uri), this.executor);
     }
 
     private Optional<OPDSDocumentProcessed> processOne(
+      final Optional<OPDSDocumentProcessed> parent_document,
       final URI uri)
     {
       try {
@@ -324,13 +328,16 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
          * Fetch the remote document.
          */
 
-        LOG.info("feed GET {}", uri);
+        LOG.info(
+          "feed GET {} {}",
+          uri,
+          parent_document.map(doc -> "(from " + doc.file().uri() + ")").orElse(""));
 
         if (!uri.isAbsolute()) {
           throw new IllegalArgumentException("URI " + uri + " is not absolute");
         }
 
-        final OPDSHTTPData data =
+        final var data =
           this.http.get(
             uri,
             this.configuration.authenticationSupplier().apply(uri));
@@ -342,11 +349,11 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         LOG.debug("processOne: parse: {}", uri);
 
         final Document document;
-        try (InputStream stream = data.stream()) {
+        try (var stream = data.stream()) {
           document = this.parsers.parse(uri, stream);
         }
 
-        final OPDSDocumentProcessed result =
+        final var result =
           new OPDSDocumentProcessor()
             .process(this.configuration, document);
 
@@ -380,12 +387,12 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       final OPDSDocumentProcessed result)
       throws IOException
     {
-      final Path output = this.configuration.output();
-      final Path file = output.resolve("info.properties");
-      final Path file_tmp = temporaryFile(file);
+      final var output = this.configuration.output();
+      final var file = output.resolve("info.properties");
+      final var file_tmp = temporaryFile(file);
 
       Files.createDirectories(file_tmp.getParent());
-      try (BufferedWriter out =
+      try (var out =
              Files.newBufferedWriter(file_tmp, TRUNCATE_EXISTING, CREATE)) {
         out.append("initial_file = ");
         out.append(output.relativize(result.file().file()).toString());
@@ -405,9 +412,9 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       final OPDSDocumentProcessed result)
       throws TransformerException, IOException
     {
-      final TransformerFactory transformer_factory =
+      final var transformer_factory =
         TransformerFactory.newInstance();
-      final Transformer transformer =
+      final var transformer =
         transformer_factory.newTransformer();
 
       transformer.setOutputProperty(
@@ -417,11 +424,11 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       transformer.setOutputProperty(
         "{http://xml.apache.org/xslt}indent-amount", "2");
 
-      final Path path = result.file().file();
-      final Path path_tmp = temporaryFile(path);
+      final var path = result.file().file();
+      final var path_tmp = temporaryFile(path);
 
       Files.createDirectories(path_tmp.getParent());
-      try (OutputStream output =
+      try (var output =
              Files.newOutputStream(path_tmp, CREATE_NEW)) {
         transformer.transform(
           new DOMSource(document),
@@ -440,9 +447,9 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     private void archiveFeed()
     {
       try {
-        final Optional<Path> archive_opt = this.configuration.outputArchive();
+        final var archive_opt = this.configuration.outputArchive();
         if (archive_opt.isPresent()) {
-          final Path archive = archive_opt.get();
+          final var archive = archive_opt.get();
           LOG.info("zip {} -> {}", this.configuration.output(), archive);
           OPDSArchiver.createArchive(
             this.configuration.output(),
@@ -457,26 +464,26 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     private void squash()
     {
       try {
-        final Optional<OPDSSquashConfiguration> squash_opt = this.configuration.squash();
+        final var squash_opt = this.configuration.squash();
         if (!squash_opt.isPresent()) {
           return;
         }
 
-        final OPDSSquashConfiguration squash =
+        final var squash =
           squash_opt.get();
 
         if (!Files.isDirectory(this.configuration.bookDirectory())) {
           return;
         }
 
-        final List<Path> epubs =
+        final var epubs =
           Files.list(this.configuration.bookDirectory())
             .collect(Collectors.toList());
 
-        for (final Path epub : epubs) {
+        for (final var epub : epubs) {
           LOG.info("squash: {}", epub);
 
-          final EPUBSquasherType squasher =
+          final var squasher =
             this.squashers.createSquasher(
               EPUBSquasherConfiguration.builder()
                 .setInputFile(epub)

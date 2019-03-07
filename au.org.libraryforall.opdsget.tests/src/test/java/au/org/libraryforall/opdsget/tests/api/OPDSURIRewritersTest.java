@@ -29,12 +29,12 @@ public final class OPDSURIRewritersTest
   @Test
   public void testNamedRewrite()
   {
-    final OPDSLocalFile file =
+    final var file =
       OPDSLocalFile.of(
         URI.create("http://example.com/feed.atom"),
         Paths.get("examples/feeds/xyz.atom"));
 
-    final URI output =
+    final var output =
       OPDSURIRewriters.namedSchemeRewriter(
         "example",
         Paths.get("examples"))
