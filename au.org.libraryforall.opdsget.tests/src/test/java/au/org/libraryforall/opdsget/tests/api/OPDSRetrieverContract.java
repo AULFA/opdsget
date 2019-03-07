@@ -1,3 +1,19 @@
+/*
+ * Copyright © 2018 Library For All
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.org.libraryforall.opdsget.tests.api;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -534,6 +550,26 @@ public abstract class OPDSRetrieverContract
       "books/CC6BAB78A232CC63D8DE8D8F2F2FFFB452762C0464478409982DB78034FAC80E.epub"));
     assertFileExists(this.output_relative.resolve(
       "books/E6CAB9F69F8408D271A7605C86857F63D38E9AB80964A7BEF9B13053D5B8305E.epub"));
+  }
+
+  @Test
+  public void testFeedbooksAcquisitions()
+    throws Throwable
+  {
+    final OPDSHTTPType http =
+      new OPDSHTTPDefault();
+    final OPDSRetrieverProviderType retrievers =
+      this.retrievers(http);
+    final OPDSRetrieverType retriever =
+      retrievers.create(this.exec);
+
+    final OPDSGetConfiguration config =
+      OPDSGetConfiguration.builder()
+        .setOutput(this.output)
+        .setRemoteURI(URI.create("http://feedbooks.github.io/opds-test-catalog/catalog/acquisition/main.xml"))
+        .build();
+
+    retriever.retrieve(config).get();
   }
 
   private static OPDSHTTPData httpDataOf(final InputStream stream)

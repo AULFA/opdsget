@@ -1,5 +1,24 @@
+/*
+ * Copyright © 2018 Library For All
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.org.libraryforall.opdsget.vanilla;
 
+import au.org.libraryforall.epubsquash.api.EPUBSquasherConfiguration;
+import au.org.libraryforall.epubsquash.api.EPUBSquasherProviderType;
+import au.org.libraryforall.epubsquash.api.EPUBSquasherType;
 import au.org.libraryforall.opdsget.api.OPDSDocumentProcessed;
 import au.org.libraryforall.opdsget.api.OPDSGetConfiguration;
 import au.org.libraryforall.opdsget.api.OPDSHTTPData;
@@ -7,6 +26,7 @@ import au.org.libraryforall.opdsget.api.OPDSHTTPDefault;
 import au.org.libraryforall.opdsget.api.OPDSHTTPType;
 import au.org.libraryforall.opdsget.api.OPDSRetrieverProviderType;
 import au.org.libraryforall.opdsget.api.OPDSRetrieverType;
+import au.org.libraryforall.opdsget.api.OPDSSquashConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -30,6 +50,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -53,10 +74,14 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
   private final OPDSHTTPType http;
   private final OPDSXMLParsers parsers;
+  private final EPUBSquasherProviderType squashers;
 
-  private OPDSRetrievers(final OPDSHTTPType in_http)
+  private OPDSRetrievers(
+    final EPUBSquasherProviderType in_squashers,
+    final OPDSHTTPType in_http)
   {
     this.http = Objects.requireNonNull(in_http, "http");
+    this.squashers = Objects.requireNonNull(in_squashers, "squashers");
     this.parsers = new OPDSXMLParsers();
   }
 
@@ -66,37 +91,45 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
   public static OPDSRetrieverProviderType provider()
   {
-    return new OPDSRetrievers(new OPDSHTTPDefault());
+    return new OPDSRetrievers(
+      ServiceLoader.load(EPUBSquasherProviderType.class)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("No available epub squasher provider")),
+      new OPDSHTTPDefault());
   }
 
   /**
-   * @param in_http An HTTP request handler
+   * @param in_squashers A set of EPUB squashers
+   * @param in_http      An HTTP request handler
    *
    * @return A retriever provider
    */
 
   public static OPDSRetrieverProviderType providerWith(
+    final EPUBSquasherProviderType in_squashers,
     final OPDSHTTPType in_http)
   {
-    return new OPDSRetrievers(in_http);
+    return new OPDSRetrievers(in_squashers, in_http);
   }
 
   @Override
   public OPDSRetrieverType create(final ExecutorService executor)
   {
-    return new Retriever(executor, this.parsers, this.http);
+    return new Retriever(executor, this.parsers, this.http, this.squashers);
   }
 
   private static final class Retriever implements OPDSRetrieverType
   {
     private final ExecutorService executor;
     private final OPDSHTTPType http;
+    private final EPUBSquasherProviderType squashers;
     private final OPDSXMLParsers parsers;
 
     Retriever(
       final ExecutorService in_executor,
       final OPDSXMLParsers in_parsers,
-      final OPDSHTTPType in_http)
+      final OPDSHTTPType in_http,
+      final EPUBSquasherProviderType in_squashers)
     {
       this.executor =
         Objects.requireNonNull(in_executor, "executor");
@@ -104,6 +137,8 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         Objects.requireNonNull(in_parsers, "parsers");
       this.http =
         Objects.requireNonNull(in_http, "http");
+      this.squashers =
+        Objects.requireNonNull(in_squashers, "squashers");
     }
 
     @Override
@@ -113,10 +148,11 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       Objects.requireNonNull(in_configuration, "configuration");
 
       final Retrieval retrieval =
-        new Retrieval(in_configuration, this.executor, this.http, this.parsers);
+        new Retrieval(in_configuration, this.executor, this.http, this.parsers, this.squashers);
 
       return retrieval
         .processFeed(in_configuration.remoteURI())
+        .thenCompose(ignored -> retrieval.squashTask())
         .thenCompose(ignored -> retrieval.archiveFeedTask());
     }
   }
@@ -129,12 +165,14 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     private final OPDSXMLParsers parsers;
     private final Set<URI> processed;
     private final Object processed_lock;
+    private final EPUBSquasherProviderType squashers;
 
     Retrieval(
       final OPDSGetConfiguration in_configuration,
       final ExecutorService in_executor,
       final OPDSHTTPType in_http,
-      final OPDSXMLParsers in_parsers)
+      final OPDSXMLParsers in_parsers,
+      final EPUBSquasherProviderType in_squashers)
     {
       this.configuration =
         Objects.requireNonNull(in_configuration, "configuration");
@@ -144,6 +182,8 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         Objects.requireNonNull(in_http, "http");
       this.parsers =
         Objects.requireNonNull(in_parsers, "parsers");
+      this.squashers =
+        Objects.requireNonNull(in_squashers, "squashers");
 
       this.processed = new HashSet<>(128);
       this.processed_lock = new Object();
@@ -286,6 +326,10 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
         LOG.info("feed GET {}", uri);
 
+        if (!uri.isAbsolute()) {
+          throw new IllegalArgumentException("URI " + uri + " is not absolute");
+        }
+
         final OPDSHTTPData data =
           this.http.get(
             uri,
@@ -388,7 +432,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       }
     }
 
-    public CompletableFuture<Void> archiveFeedTask()
+    CompletableFuture<Void> archiveFeedTask()
     {
       return CompletableFuture.runAsync(this::archiveFeed, this.executor);
     }
@@ -408,6 +452,50 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       } catch (final IOException e) {
         throw new CompletionException(e);
       }
+    }
+
+    private void squash()
+    {
+      try {
+        final Optional<OPDSSquashConfiguration> squash_opt = this.configuration.squash();
+        if (!squash_opt.isPresent()) {
+          return;
+        }
+
+        final OPDSSquashConfiguration squash =
+          squash_opt.get();
+
+        if (!Files.isDirectory(this.configuration.bookDirectory())) {
+          return;
+        }
+
+        final List<Path> epubs =
+          Files.list(this.configuration.bookDirectory())
+            .collect(Collectors.toList());
+
+        for (final Path epub : epubs) {
+          LOG.info("squash: {}", epub);
+
+          final EPUBSquasherType squasher =
+            this.squashers.createSquasher(
+              EPUBSquasherConfiguration.builder()
+                .setInputFile(epub)
+                .setTemporaryDirectory(Files.createTempDirectory("opdsget-retriever-"))
+                .setOutputFile(epub)
+                .setMaximumImageHeight(squash.maximumImageHeight())
+                .setMaximumImageWidth(squash.maximumImageWidth())
+                .build());
+
+          squasher.squash();
+        }
+      } catch (final IOException e) {
+        throw new CompletionException(e);
+      }
+    }
+
+    CompletableFuture<Void> squashTask()
+    {
+      return CompletableFuture.runAsync(this::squash, this.executor);
     }
   }
 }

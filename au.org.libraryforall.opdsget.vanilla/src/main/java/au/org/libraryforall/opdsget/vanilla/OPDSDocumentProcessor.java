@@ -1,3 +1,19 @@
+/*
+ * Copyright © 2018 Library For All
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.org.libraryforall.opdsget.vanilla;
 
 import au.org.libraryforall.opdsget.api.OPDSDocumentProcessed;
@@ -112,6 +128,13 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
       .build();
   }
 
+  private static URI makeAbsolute(
+    final URI base,
+    final URI input)
+  {
+    return base.resolve(input);
+  }
+
   private void rewriteAndCollectLinks(
     final OPDSGetConfiguration configuration,
     final Document document,
@@ -133,7 +156,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         case "alternate": {
           final String type = link.getAttribute("type");
           if (type != null && type.contains("application/atom+xml")) {
-            final URI target = URI.create(link.getAttribute("href"));
+            final URI target = constructLinkURI(document, link);
             final Path path = configuration.feedFileHashed(target);
             final OPDSLocalFile file = OPDSLocalFile.of(target, path);
             feeds.put(target, file);
@@ -146,7 +169,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         }
 
         case "next": {
-          final URI target = URI.create(link.getAttribute("href"));
+          final URI target = constructLinkURI(document, link);
           final Path path = configuration.feedFileHashed(target);
           final OPDSLocalFile file = OPDSLocalFile.of(target, path);
           feeds.put(target, file);
@@ -157,7 +180,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         case "http://opds-spec.org/image":
         case "http://opds-spec.org/image/thumbnail": {
           if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_IMAGES)) {
-            final URI target = URI.create(link.getAttribute("href"));
+            final URI target = constructLinkURI(document, link);
             final Path path = configuration.imageFileHashed(target);
             final OPDSLocalFile file = OPDSLocalFile.of(target, path);
             images.put(target, file);
@@ -168,7 +191,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
         case "http://opds-spec.org/acquisition/open-access": {
           if (configuration.fetchedKinds().contains(OPDSGetKind.OPDS_GET_BOOKS)) {
-            final URI target = URI.create(link.getAttribute("href"));
+            final URI target = constructLinkURI(document, link);
             final Path path = configuration.bookFileHashed(target);
             final OPDSLocalFile file = OPDSLocalFile.of(target, path);
             books.put(target, file);
@@ -184,6 +207,15 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         }
       }
     }
+  }
+
+  private static URI constructLinkURI(
+    final Document document,
+    final Element link)
+  {
+    return makeAbsolute(
+      URI.create(document.getDocumentURI()),
+      URI.create(link.getAttribute("href")));
   }
 
   private void removeUpdatedElements(final Document document)

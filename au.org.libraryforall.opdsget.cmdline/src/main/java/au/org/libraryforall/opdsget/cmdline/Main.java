@@ -1,18 +1,36 @@
+/*
+ * Copyright © 2018 Library For All
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.org.libraryforall.opdsget.cmdline;
 
-import ch.qos.logback.classic.Level;
-import com.beust.jcommander.IStringConverter;
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
+import au.org.libraryforall.epubsquash.vanilla.EPUBSquashers;
 import au.org.libraryforall.opdsget.api.OPDSAuthenticationPatternMappedParser;
 import au.org.libraryforall.opdsget.api.OPDSAuthenticationType;
 import au.org.libraryforall.opdsget.api.OPDSGetConfiguration;
 import au.org.libraryforall.opdsget.api.OPDSGetKind;
 import au.org.libraryforall.opdsget.api.OPDSHTTPDefault;
 import au.org.libraryforall.opdsget.api.OPDSRetrieverType;
+import au.org.libraryforall.opdsget.api.OPDSSquashConfiguration;
 import au.org.libraryforall.opdsget.api.OPDSURIRewriters;
 import au.org.libraryforall.opdsget.vanilla.OPDSRetrievers;
+import ch.qos.logback.classic.Level;
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,6 +171,24 @@ public final class Main
       description = "The kind of content that will not be downloaded (Specify multiple times for multiple kinds)",
       required = false)
     private List<String> exclude_content_kinds = List.of();
+
+    @Parameter(
+      names = "--squash-image-max-width",
+      required = false,
+      description = "The maximum width of images")
+    private double image_max_width = 1600.0;
+
+    @Parameter(
+      names = "--squash-image-max-height",
+      required = false,
+      description = "The maximum height of images")
+    private double image_max_height = 1170.0;
+
+    @Parameter(
+      names = "--squash",
+      required = false,
+      description = "True if EPUB files should be squashed to reduce their size")
+    private boolean squash;
   }
 
   /**
@@ -221,7 +257,7 @@ public final class Main
         });
 
     try {
-      final OPDSGetConfiguration config =
+      final OPDSGetConfiguration.Builder builder =
         OPDSGetConfiguration.builder()
           .setOutput(parsed_arguments.output_directory)
           .setRemoteURI(parsed_arguments.feed)
@@ -232,11 +268,22 @@ public final class Main
           .setOutputArchive(
             Optional.ofNullable(parsed_arguments.output_archive)
               .map(Paths::get))
-          .setAuthenticationSupplier(loadAuth(parsed_arguments.auth))
-          .build();
+          .setAuthenticationSupplier(loadAuth(parsed_arguments.auth));
+
+      if (parsed_arguments.squash) {
+        builder.setSquash(
+          OPDSSquashConfiguration.builder()
+            .setMaximumImageHeight(parsed_arguments.image_max_height)
+            .setMaximumImageWidth(parsed_arguments.image_max_width)
+            .build());
+      }
+
+      final OPDSGetConfiguration config = builder.build();
 
       final OPDSRetrieverType retriever =
-        OPDSRetrievers.providerWith(new OPDSHTTPDefault())
+        OPDSRetrievers.providerWith(
+          new EPUBSquashers(),
+          new OPDSHTTPDefault())
           .create(exec);
 
       retriever.retrieve(config).get();

@@ -15,7 +15,7 @@
   <artifactId>au.org.libraryforall.opdsget.cmdline</artifactId>
   <packaging>jar</packaging>
 
-  <name>au.org.libraryforall.opdsget.api</name>
+  <name>au.org.libraryforall.opdsget.cmdline</name>
   <description>OPDS offline mirroring tool (Command-line frontend)</description>
   <url>https://github.com/AULFA/opdsget</url>
 
@@ -32,12 +32,25 @@
     </dependency>
 
     <dependency>
+      <groupId>au.org.libraryforall</groupId>
+      <artifactId>au.org.libraryforall.epubsquash.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>au.org.libraryforall</groupId>
+      <artifactId>au.org.libraryforall.epubsquash.vanilla</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
   </dependencies>
 

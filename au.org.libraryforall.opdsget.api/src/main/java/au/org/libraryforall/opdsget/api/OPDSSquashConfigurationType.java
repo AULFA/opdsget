@@ -16,28 +16,25 @@
 
 package au.org.libraryforall.opdsget.api;
 
-import java.net.URI;
-import java.util.Optional;
+import org.immutables.value.Value;
 
 /**
- * An abstraction over HTTP requests.
+ * Configuration for EPUB squashing.
  */
 
-public interface OPDSHTTPType
+@ImmutableStyleType
+@Value.Immutable
+public interface OPDSSquashConfigurationType
 {
   /**
-   * Make a GET request.
-   *
-   * @param uri  The URI
-   * @param auth The authentication data, if any
-   *
-   * @return The remote HTTP data
-   *
-   * @throws OPDSHTTPException On errors such as I/O errors or error codes from the server
+   * @return The maximum image width, in pixels.
    */
 
-  OPDSHTTPData get(
-    URI uri,
-    Optional<OPDSAuthenticationType> auth)
-    throws OPDSHTTPException;
+  double maximumImageWidth();
+
+  /**
+   * @return The maximum image height, in pixels.
+   */
+
+  double maximumImageHeight();
 }

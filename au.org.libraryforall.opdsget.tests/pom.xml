@@ -19,6 +19,10 @@
   <description>OPDS offline mirroring tool (Test suite)</description>
   <url>https://github.com/AULFA/opdsget</url>
 
+  <properties>
+    <mdep.analyze.skip>true</mdep.analyze.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -29,6 +33,15 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>au.org.libraryforall.opdsget.vanilla</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>au.org.libraryforall</groupId>
+      <artifactId>au.org.libraryforall.epubsquash.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>au.org.libraryforall</groupId>
+      <artifactId>au.org.libraryforall.epubsquash.vanilla</artifactId>
     </dependency>
 
     <dependency>
