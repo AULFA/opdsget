@@ -469,9 +469,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
           return;
         }
 
-        final var squash =
-          squash_opt.get();
-
+        final var squash = squash_opt.get();
         if (!Files.isDirectory(this.configuration.bookDirectory())) {
           return;
         }
@@ -483,19 +481,30 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         for (final var epub : epubs) {
           LOG.info("squash: {}", epub);
 
-          final var squasher =
-            this.squashers.createSquasher(
-              EPUBSquasherConfiguration.builder()
-                .setInputFile(epub)
-                .setTemporaryDirectory(Files.createTempDirectory("opdsget-retriever-"))
-                .setOutputFile(epub)
-                .setMaximumImageHeight(squash.maximumImageHeight())
-                .setMaximumImageWidth(squash.maximumImageWidth())
-                .build());
+          try {
+            final var squasher =
+              this.squashers.createSquasher(
+                EPUBSquasherConfiguration.builder()
+                  .setInputFile(epub)
+                  .setTemporaryDirectory(Files.createTempDirectory("opdsget-retriever-"))
+                  .setOutputFile(epub)
+                  .setMaximumImageHeight(squash.maximumImageHeight())
+                  .setMaximumImageWidth(squash.maximumImageWidth())
+                  .build());
 
-          squasher.squash();
+            squasher.squash();
+          } catch (final Exception e) {
+            LOG.error("failed to squash {}: ", epub, e);
+
+            if (System.getProperty("au.org.libraryforall.epubsquash.unsupported.IgnoreSquashErrors") != null) {
+              LOG.warn("ignoring epubsquash errors");
+              continue;
+            }
+
+            throw e;
+          }
         }
-      } catch (final IOException e) {
+      } catch (final Exception e) {
         throw new CompletionException(e);
       }
     }
