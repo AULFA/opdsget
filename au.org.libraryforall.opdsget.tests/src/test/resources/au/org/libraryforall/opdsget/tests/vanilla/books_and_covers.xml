@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+
+  <id>http://lfa.cantookstation.com/catalog.atom</id>
+  <title>Catalogue</title>
+  <icon>https://www.cantookstation.com/favicon/cdoc.ico</icon>
+
+  <entry>
+    <id>
+      http://lfa.cantookstation.com/resource_entries/5a956ee22357943764616fdb.atom
+    </id>
+    <title>I Can See A Cuscus</title>
+    <link href="https://example.com/thumbnail_0.png"
+          rel="http://opds-spec.org/image/thumbnail"
+          type="image/jpeg"/>
+    <link href="https://example.com/cover_0.png"
+          rel="http://opds-spec.org/image"
+          type="image/jpeg"/>
+    <link href="https://example.com/0.epub"
+          rel="http://opds-spec.org/acquisition/open-access"
+          type="application/epub+zip">
+      <identifier>docrurn-uuid-a948b250-1567-43ad-8626-2722cc6fc134-epub
+      </identifier>
+    </link>
+  </entry>
+
+  <entry>
+    <id>
+      http://lfa.cantookstation.com/resource_entries/5a956ee22357943764616fdb.atom
+    </id>
+    <title>I Can See A Cuscus</title>
+    <link href="https://example.com/thumbnail_1.png"
+          rel="http://opds-spec.org/image/thumbnail"
+          type="image/jpeg"/>
+    <link href="https://example.com/cover_1.png"
+          rel="http://opds-spec.org/image"
+          type="image/jpeg"/>
+    <link href="https://example.com/1.epub"
+          rel="http://opds-spec.org/acquisition/open-access"
+          type="application/epub+zip">
+      <identifier>docrurn-uuid-a948b250-1567-43ad-8626-2722cc6fc134-epub
+      </identifier>
+    </link>
+  </entry>
+
+  <!-- Note the duplicate files -->
+  <entry>
+    <id>
+      http://lfa.cantookstation.com/resource_entries/5a956ee22357943764616fdb.atom
+    </id>
+    <title>I Can See A Cuscus</title>
+    <link href="https://example.com/thumbnail_1.png"
+          rel="http://opds-spec.org/image/thumbnail"
+          type="image/jpeg"/>
+    <link href="https://example.com/cover_1.png"
+          rel="http://opds-spec.org/image"
+          type="image/jpeg"/>
+    <link href="https://example.com/1.epub"
+          rel="http://opds-spec.org/acquisition/open-access"
+          type="application/epub+zip">
+      <identifier>docrurn-uuid-a948b250-1567-43ad-8626-2722cc6fc134-epub
+      </identifier>
+    </link>
+  </entry>
+  <entry>
+    <id>
+      http://lfa.cantookstation.com/resource_entries/5a956ee22357943764616fdb.atom
+    </id>
+    <title>I Can See A Cuscus</title>
+    <link href="https://example.com/thumbnail_1.png"
+          rel="http://opds-spec.org/image/thumbnail"
+          type="image/jpeg"/>
+    <link href="https://example.com/cover_1.png"
+          rel="http://opds-spec.org/image"
+          type="image/jpeg"/>
+    <link href="https://example.com/1.epub"
+          rel="http://opds-spec.org/acquisition/open-access"
+          type="application/epub+zip">
+      <identifier>docrurn-uuid-a948b250-1567-43ad-8626-2722cc6fc134-epub
+      </identifier>
+    </link>
+  </entry>
+  <entry>
+    <id>
+      http://lfa.cantookstation.com/resource_entries/5a956ee22357943764616fdb.atom
+    </id>
+    <title>I Can See A Cuscus</title>
+    <link href="https://example.com/thumbnail_1.png"
+          rel="http://opds-spec.org/image/thumbnail"
+          type="image/jpeg"/>
+    <link href="https://example.com/cover_1.png"
+          rel="http://opds-spec.org/image"
+          type="image/jpeg"/>
+    <link href="https://example.com/1.epub"
+          rel="http://opds-spec.org/acquisition/open-access"
+          type="application/epub+zip">
+      <identifier>docrurn-uuid-a948b250-1567-43ad-8626-2722cc6fc134-epub
+      </identifier>
+    </link>
+  </entry>
+
+</feed>

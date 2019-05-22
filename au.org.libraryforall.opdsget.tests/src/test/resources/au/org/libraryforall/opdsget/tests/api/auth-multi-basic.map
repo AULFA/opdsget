@@ -1,0 +1,3 @@
+http[s]?://(www\.)?example\.com        basic:0:0
+http[s]?://(www\.)?example\.com/abc    basic:1:1
+http[s]?://(www\.)?example\.com/def    basic:2:2

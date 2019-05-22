@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <id>http://example.com/catalog.atom</id>
+  <title>Catalogue</title>
+
+  <link href="https://example.com/2.atom"
+        rel="next"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+
+</feed>
