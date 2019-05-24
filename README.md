@@ -10,7 +10,7 @@ An OPDS feed retrieval and rewriting tool.
 * Efficient parallel downloading of large feeds
 * Transparent rewriting of feed URIs to make feeds readable offline
 * Byte-for-byte reproducible feed archives (including fixing of time-related fields from feeds)
-* Well designed modular API for use in Java 9 programs
+* Well designed modular API for use in Java 11+ programs
 * Command line interface
 * EPUB squashing with [epubsquash](https://github.com/AULFA/epubsquash)
 
