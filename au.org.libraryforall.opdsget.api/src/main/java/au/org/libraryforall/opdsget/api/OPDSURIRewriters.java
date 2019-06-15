@@ -16,10 +16,11 @@
 
 package au.org.libraryforall.opdsget.api;
 
+import com.io7m.jaffirm.core.Invariants;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Various URI rewriting functions.
@@ -33,12 +34,29 @@ public final class OPDSURIRewriters
   }
 
   /**
+   * @return A rewriter that simply rewrites to local file URIs.
+   */
+
+  public static OPDSURIRewriterType relativeRewriter()
+  {
+    return (sourceFile, targetFile) -> {
+      final var sourceURI = sourceFile.file().toAbsolutePath().getParent();
+      Invariants.checkInvariant(sourceURI, sourceURI.isAbsolute(), u -> "Source must be absolute");
+      final var targetURI = targetFile.file().toAbsolutePath();
+      Invariants.checkInvariant(targetURI, targetURI.isAbsolute(), u -> "Target must be absolute");
+      final var relative = URI.create(sourceURI.relativize(targetURI).toString());
+      Invariants.checkInvariant(relative, !relative.isAbsolute(), u -> "Output must be relative");
+      return relative;
+    };
+  }
+
+  /**
    * @param output The output directory against which URIs will be relativized
    *
    * @return A rewriter that simply rewrites to local file URIs.
    */
 
-  public static Function<OPDSLocalFile, URI> plainFileRewriter(
+  public static OPDSURIRewriterType plainFileRewriter(
     final Path output)
   {
     return namedSchemeRewriter("file", output);
@@ -51,29 +69,25 @@ public final class OPDSURIRewriters
    * @return A rewriter that simply rewrites to local file URIs.
    */
 
-  public static Function<OPDSLocalFile, URI> namedSchemeRewriter(
+  public static OPDSURIRewriterType namedSchemeRewriter(
     final String scheme,
     final Path output)
   {
     Objects.requireNonNull(scheme, "scheme");
     Objects.requireNonNull(output, "output");
 
-    return local_file -> {
-      final var file = local_file.file();
+    return (sourceFile, targetFile) -> {
+      final var file = targetFile.file();
       return URI.create(scheme + "://" + output.relativize(file));
     };
   }
 
   /**
-   * @param output The output directory against which URIs will be relativized
-   *
-   * @return A rewriter that simply rewrites to local file URIs.
+   * @return A rewriter that simply returns the target URI.
    */
 
-  public static Function<OPDSLocalFile, URI> androidAssetRewriter(
-    final Path output)
+  public static OPDSURIRewriterType noRewriter()
   {
-    Objects.requireNonNull(output, "output");
-    return namedSchemeRewriter("android_asset", output);
+    return (sourceFile, targetFile) -> targetFile.uri();
   }
 }

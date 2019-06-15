@@ -56,9 +56,14 @@ Usage: opdsget [options]
     --squash-image-max-width
       The maximum width of images
       Default: 1600.0
-    --uri-rewrite-scheme
-      The scheme that will be used for rewritten URIs
+    --uri-rewrite-scheme-name
+      The name of the URI scheme used to rewrite URIs (if applicable)
       Default: file
+    --uri-rewrite-strategy
+      The strategy that will be used to rewrite URIs
+      Default: RELATIVE
+      Possible Values: [NONE, NAMED, RELATIVE]
+
 ```
 
 To download a feed `http://example.com/feed.atom` to directory
@@ -110,16 +115,27 @@ paths). For example, a feed at `http://www.example.com/feed.atom` will
 be placed in the output directory `out` at `out/feeds/DD1E9BA1ECF8D7B30994CB07D62320DE5F8912D8DF336B874489FD2D9985AEB2.atom`.
 Any reference to `http://www.example.com/feed.atom` in subsequent feeds
 will be rewritten to `file://feeds/DD1E9BA1ECF8D7B30994CB07D62320DE5F8912D8DF336B874489FD2D9985AEB2.atom`
-by default. It's possible to specify a custom URI scheme that will
-be used for rewritten links. This is useful for applications that
-wish to embed OPDS feeds and need to use a custom URI scheme to refer
-to bundled content in a manner distinct from non-bundled remote content.
-The `--uri-rewrite-scheme` is used to specify the scheme:
+by default.
+
+It's possible to specify the strategy used to rewrite links with
+`--uri-rewrite-strategy`. The following strategies are available
+in the command-line interface:
+
+  * `NONE`: Links are not rewritten at all
+  * `RELATIVE`: Links are rewritten to be relative to the generated
+     files.
+  * `NAMED`: Links are rewritten to use a named URI scheme and
+     prefixes are removed such that the files appear to be in the
+     "root directory" of a filesystem.
+
+For the `NAMED` strategy, `--uri-rewrite-scheme-name` is used to
+specify the scheme:
 
 ```
 $ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
+  --uri-rewrite-strategy NAMED \
   --uri-rewrite-scheme bundled-example
 ```
 

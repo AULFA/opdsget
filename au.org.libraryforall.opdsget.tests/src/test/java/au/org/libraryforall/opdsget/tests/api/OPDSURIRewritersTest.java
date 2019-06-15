@@ -29,7 +29,12 @@ public final class OPDSURIRewritersTest
   @Test
   public void testNamedRewrite()
   {
-    final var file =
+    final var sourceFile =
+      OPDSLocalFile.of(
+        URI.create("http://example.com/feed.atom"),
+        Paths.get("examples/feeds/xyz.atom"));
+
+    final var targetFile =
       OPDSLocalFile.of(
         URI.create("http://example.com/feed.atom"),
         Paths.get("examples/feeds/xyz.atom"));
@@ -38,10 +43,32 @@ public final class OPDSURIRewritersTest
       OPDSURIRewriters.namedSchemeRewriter(
         "example",
         Paths.get("examples"))
-        .apply(file);
+        .rewrite(sourceFile, targetFile);
 
     Assert.assertEquals(
       URI.create("example://feeds/xyz.atom"),
       output);
+  }
+
+  @Test
+  public void testRelativize()
+  {
+    final var sourceFile =
+      OPDSLocalFile.of(
+        URI.create("http://example.com/feed.atom"),
+        Paths.get("examples/feeds/abc.atom"));
+
+    final var targetFile =
+      OPDSLocalFile.of(
+        URI.create("http://example.com/feed.atom"),
+        Paths.get("examples/feeds/xyz.atom"));
+
+    final var result =
+      OPDSURIRewriters.relativeRewriter()
+        .rewrite(sourceFile, targetFile);
+
+    Assert.assertEquals(
+      URI.create("xyz.atom"),
+      result);
   }
 }

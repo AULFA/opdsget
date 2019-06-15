@@ -23,6 +23,7 @@ import au.org.libraryforall.opdsget.api.OPDSGetConfiguration;
 import au.org.libraryforall.opdsget.api.OPDSGetKind;
 import au.org.libraryforall.opdsget.api.OPDSHTTPDefault;
 import au.org.libraryforall.opdsget.api.OPDSSquashConfiguration;
+import au.org.libraryforall.opdsget.api.OPDSURIRewriterType;
 import au.org.libraryforall.opdsget.api.OPDSURIRewriters;
 import au.org.libraryforall.opdsget.vanilla.OPDSRetrievers;
 import ch.qos.logback.classic.Level;
@@ -132,9 +133,7 @@ public final class Main
           .setOutput(parsed_arguments.output_directory)
           .setRemoteURI(parsed_arguments.feed)
           .setFetchedKinds(included_kinds)
-          .setUriRewriter(OPDSURIRewriters.namedSchemeRewriter(
-            parsed_arguments.uri_rewrite_scheme,
-            parsed_arguments.output_directory))
+          .setUriRewriter(uriRewriterStrategy(parsed_arguments, parsed_arguments.uri_rewrite_strategy))
           .setOutputArchive(
             Optional.ofNullable(parsed_arguments.output_archive)
               .map(Paths::get))
@@ -169,6 +168,24 @@ public final class Main
     } finally {
       exec.shutdown();
     }
+  }
+
+  private static OPDSURIRewriterType uriRewriterStrategy(
+    final Arguments arguments,
+    final OPDSURIRewriteStrategy strategy)
+  {
+    switch (strategy) {
+      case NONE:
+        return OPDSURIRewriters.noRewriter();
+      case NAMED:
+        return OPDSURIRewriters.namedSchemeRewriter(
+          arguments.uri_rewrite_scheme_name,
+          arguments.output_directory);
+      case RELATIVE:
+        return OPDSURIRewriters.relativeRewriter();
+    }
+
+    throw new IllegalStateException("Unreachable code");
   }
 
   private static Function<URI, Optional<OPDSAuthenticationType>> loadAuth(
@@ -225,46 +242,61 @@ public final class Main
       converter = OPDSLogLevelConverter.class,
       required = false)
     private OPDSLogLevel log_level = OPDSLogLevel.INFO;
+
     @Parameter(
       names = "--feed",
       description = "The URI of the remote feed",
       required = true)
     private URI feed;
+
     @Parameter(
       names = "--output-directory",
       description = "The directory that will contain the downloaded feed objects",
       required = true)
     private Path output_directory;
+
     @Parameter(
       names = "--output-archive",
       description = "The zip archive that will be created for the feed",
       required = false)
     private String output_archive;
+
     @Parameter(
       names = "--authentication",
       description = "The file containing authentication information",
       required = false)
     private String auth;
+
     @Parameter(
-      names = "--uri-rewrite-scheme",
-      description = "The scheme that will be used for rewritten URIs",
+      names = "--uri-rewrite-strategy",
+      description = "The strategy that will be used to rewrite URIs",
       required = false)
-    private String uri_rewrite_scheme = "file";
+    private OPDSURIRewriteStrategy uri_rewrite_strategy = OPDSURIRewriteStrategy.RELATIVE;
+
+    @Parameter(
+      names = "--uri-rewrite-scheme-name",
+      description = "The name of the URI scheme used to rewrite URIs (if applicable)",
+      required = false)
+    private String uri_rewrite_scheme_name = "file";
+
     @Parameter(
       names = "--exclude-content-kind",
       description = "The kind of content that will not be downloaded (Specify multiple times for multiple kinds)",
       required = false)
     private List<String> exclude_content_kinds = List.of();
+
     @Parameter(
       names = "--squash-image-max-width",
       required = false,
       description = "The maximum width of images")
     private double image_max_width = 1600.0;
+
     @Parameter(
       names = "--squash-image-max-height",
       required = false,
       description = "The maximum height of images")
     private double image_max_height = 1170.0;
+
     @Parameter(
       names = "--squash",
       required = false,
@@ -275,6 +307,27 @@ public final class Main
     {
 
     }
+  }
+
+  enum OPDSURIRewriteStrategy
+  {
+    /**
+     * Links are not rewritten.
+     */
+
+    NONE,
+
+    /**
+     * Links are rewritten as absolute URIs using a named scheme.
+     */
+
+    NAMED,
+
+    /**
+     * Links are rewritten to be bare relative links.
+     */
+
+    RELATIVE
   }
 
   final class OPDSLogLevelConverter implements IStringConverter<OPDSLogLevel>

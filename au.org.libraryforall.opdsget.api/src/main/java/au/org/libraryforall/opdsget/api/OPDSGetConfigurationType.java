@@ -66,7 +66,7 @@ public interface OPDSGetConfigurationType
 
   @Value.Default
   @Value.Parameter
-  default Function<OPDSLocalFile, URI> uriRewriter()
+  default OPDSURIRewriterType uriRewriter()
   {
     return OPDSURIRewriters.plainFileRewriter(this.output());
   }
