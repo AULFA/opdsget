@@ -24,7 +24,6 @@ import au.org.libraryforall.opdsget.api.OPDSHTTPDefault;
 import au.org.libraryforall.opdsget.api.OPDSHTTPException;
 import au.org.libraryforall.opdsget.api.OPDSHTTPType;
 import au.org.libraryforall.opdsget.api.OPDSRetrieverProviderType;
-import au.org.libraryforall.opdsget.api.OPDSRetrieverType;
 import au.org.libraryforall.opdsget.tests.vanilla.OPDSDocumentProcessorTest;
 import org.hamcrest.core.StringContains;
 import org.junit.After;
@@ -42,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -375,6 +373,8 @@ public abstract class OPDSRetrieverContract
       "books/CC6BAB78A232CC63D8DE8D8F2F2FFFB452762C0464478409982DB78034FAC80E.epub"));
     assertFileExists(this.output.resolve(
       "books/E6CAB9F69F8408D271A7605C86857F63D38E9AB80964A7BEF9B13053D5B8305E.epub"));
+
+    assertFileExists(this.output.resolve("index.txt"));
   }
 
   @Test
@@ -570,6 +570,15 @@ public abstract class OPDSRetrieverContract
         .build();
 
     retriever.retrieve(config).get();
+
+    assertFileExists(this.output.resolve("index.txt"));
+
+    final var expectedLines =
+      new String(resourceStream("feedbooks-index.txt").readAllBytes(), UTF_8);
+    final var receivedLines =
+      Files.readString(this.output.resolve("index.txt"), UTF_8);
+
+    Assert.assertEquals(expectedLines, receivedLines);
   }
 
   private static OPDSHTTPData httpDataOf(final InputStream stream)

@@ -22,6 +22,7 @@ import au.org.libraryforall.opdsget.api.OPDSGetConfiguration;
 import au.org.libraryforall.opdsget.api.OPDSGetKind;
 import au.org.libraryforall.opdsget.api.OPDSLocalFile;
 import au.org.libraryforall.opdsget.api.OPDSURIHashing;
+import au.org.libraryforall.opdsget.api.OPDSURIRewriterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -38,7 +39,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
 
 /**
  * The default document processor implementation.
@@ -53,6 +54,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
   private final XPath xpath;
   private final XPathExpression xpath_links;
   private final XPathExpression xpath_updated;
+  private final XPathExpression xpath_title;
 
   /**
    * Construct a new processor.
@@ -68,17 +70,20 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         "//*[local-name()='link' and namespace-uri()='http://www.w3.org/2005/Atom']");
       this.xpath_updated = this.xpath.compile(
         "//*[local-name()='updated' and namespace-uri()='http://www.w3.org/2005/Atom']");
+      this.xpath_title = this.xpath.compile(
+        "//*[local-name()='title' and namespace-uri()='http://www.w3.org/2005/Atom']");
     } catch (final XPathExpressionException e) {
       throw new IllegalStateException(e);
     }
   }
 
   private static void rewriteLinkTarget(
-    final Function<OPDSLocalFile, URI> rewriter,
+    final OPDSURIRewriterType rewriter,
     final Element link,
-    final OPDSLocalFile file)
+    final OPDSLocalFile source,
+    final OPDSLocalFile target)
   {
-    link.setAttribute("href", rewriter.apply(file).toString());
+    link.setAttribute("href", rewriter.rewrite(Optional.of(source), target).toString());
   }
 
   /*
@@ -125,35 +130,54 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     final Map<URI, OPDSLocalFile> images = new HashMap<>();
     final Map<URI, OPDSLocalFile> books = new HashMap<>();
 
-    this.rewriteAndCollectLinks(configuration, document, feeds, images, books);
-    this.removeUpdatedElements(document);
-
     final var document_uri =
       URI.create(document.getDocumentURI());
     final var hash =
       OPDSURIHashing.hashOf(document_uri);
     final var file =
       configuration.feedFile(hash + ".atom");
+    final var currentFile =
+      OPDSLocalFile.of(document_uri, file);
+
+    final var classification = this.findTitle(document);
+    this.rewriteAndCollectLinks(configuration, currentFile, document, feeds, images, books);
+    this.removeUpdatedElements(document);
 
     return OPDSDocumentProcessed.builder()
       .setFeeds(feeds)
       .setBooks(books)
       .setImages(images)
-      .setFile(OPDSLocalFile.of(document_uri, file))
+      .setFile(currentFile)
+      .setTitle(classification.title)
+      .setEntry(classification.isEntry)
       .build();
+  }
+
+  private Classification findTitle(final Document document)
+    throws XPathExpressionException
+  {
+    final var root = document.getDocumentElement();
+    final var isEntry = Objects.equals(root.getLocalName(), "entry");
+    final String title;
+    final var titles = (NodeList) this.xpath_title.evaluate(document, XPathConstants.NODESET);
+    if (titles.getLength() > 0) {
+      title = titles.item(0).getTextContent();
+    } else {
+      title = "";
+    }
+    return new Classification(isEntry, title);
   }
 
   private void rewriteAndCollectLinks(
     final OPDSGetConfiguration configuration,
+    final OPDSLocalFile source,
     final Document document,
     final Map<URI, OPDSLocalFile> feeds,
     final Map<URI, OPDSLocalFile> images,
     final Map<URI, OPDSLocalFile> books)
     throws XPathExpressionException
   {
-    final var links =
-      (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
-
+    final var links = (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
     final var rewriter = configuration.uriRewriter();
     for (var index = 0; index < links.getLength(); ++index) {
       final var link = (Element) links.item(index);
@@ -169,7 +193,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
             final var path = configuration.feedFileHashed(target);
             final var file = OPDSLocalFile.of(target, path);
             feeds.put(target, file);
-            rewriteLinkTarget(rewriter, link, file);
+            rewriteLinkTarget(rewriter, link, source, file);
           } else {
             LOG.debug("removing link with rel {} and type {}", relation, type);
             removeElement(link);
@@ -182,7 +206,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
           final var path = configuration.feedFileHashed(target);
           final var file = OPDSLocalFile.of(target, path);
           feeds.put(target, file);
-          rewriteLinkTarget(rewriter, link, file);
+          rewriteLinkTarget(rewriter, link, source, file);
           break;
         }
 
@@ -193,7 +217,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
             final var path = configuration.imageFileHashed(target);
             final var file = OPDSLocalFile.of(target, path);
             images.put(target, file);
-            rewriteLinkTarget(rewriter, link, file);
+            rewriteLinkTarget(rewriter, link, source, file);
           }
           break;
         }
@@ -205,7 +229,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
             final var path = configuration.bookFileHashed(target);
             final var file = OPDSLocalFile.of(target, path);
             books.put(target, file);
-            rewriteLinkTarget(rewriter, link, file);
+            rewriteLinkTarget(rewriter, link, source, file);
           }
           break;
         }
@@ -228,6 +252,20 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     for (var index = 0; index < updateds.getLength(); ++index) {
       final var updated = (Element) updateds.item(index);
       updated.setTextContent("2000-01-01T00:00:00Z");
+    }
+  }
+
+  private static final class Classification
+  {
+    private final boolean isEntry;
+    private final String title;
+
+    Classification(
+      final boolean inIsEntry,
+      final String inTitle)
+    {
+      this.isEntry = inIsEntry;
+      this.title = Objects.requireNonNull(inTitle, "title");
     }
   }
 }

@@ -23,13 +23,20 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public final class OPDSURIRewritersTest
 {
   @Test
-  public void testNamedRewrite()
+  public void testNamedRewrite0()
   {
-    final var file =
+    final var sourceFile =
+      Optional.of(
+        OPDSLocalFile.of(
+          URI.create("http://example.com/feed.atom"),
+          Paths.get("examples/feeds/xyz.atom")));
+
+    final var targetFile =
       OPDSLocalFile.of(
         URI.create("http://example.com/feed.atom"),
         Paths.get("examples/feeds/xyz.atom"));
@@ -38,10 +45,75 @@ public final class OPDSURIRewritersTest
       OPDSURIRewriters.namedSchemeRewriter(
         "example",
         Paths.get("examples"))
-        .apply(file);
+        .rewrite(sourceFile, targetFile);
 
     Assert.assertEquals(
       URI.create("example://feeds/xyz.atom"),
       output);
+  }
+
+  @Test
+  public void testNamedRewrite1()
+  {
+    final var sourceFile =
+      Optional.<OPDSLocalFile>empty();
+
+    final var targetFile =
+      OPDSLocalFile.of(
+        URI.create("http://example.com/feed.atom"),
+        Paths.get("examples/feeds/xyz.atom"));
+
+    final var output =
+      OPDSURIRewriters.namedSchemeRewriter(
+        "example",
+        Paths.get("examples"))
+        .rewrite(sourceFile, targetFile);
+
+    Assert.assertEquals(
+      URI.create("example://feeds/xyz.atom"),
+      output);
+  }
+
+  @Test
+  public void testRelativize0()
+  {
+    final var sourceFile =
+      Optional.of(
+        OPDSLocalFile.of(
+          URI.create("http://example.com/feed.atom"),
+          Paths.get("examples/feeds/abc.atom")));
+
+    final var targetFile =
+      OPDSLocalFile.of(
+        URI.create("http://example.com/feed.atom"),
+        Paths.get("examples/feeds/xyz.atom"));
+
+    final var result =
+      OPDSURIRewriters.relativeRewriter()
+        .rewrite(sourceFile, targetFile);
+
+    Assert.assertEquals(
+      URI.create("xyz.atom"),
+      result);
+  }
+
+  @Test
+  public void testRelativize1()
+  {
+    final var sourceFile =
+      Optional.<OPDSLocalFile>empty();
+
+    final var targetFile =
+      OPDSLocalFile.of(
+        URI.create("http://example.com/feed.atom"),
+        Paths.get("examples/feeds/xyz.atom"));
+
+    final var result =
+      OPDSURIRewriters.relativeRewriter()
+        .rewrite(sourceFile, targetFile);
+
+    Assert.assertEquals(
+      URI.create("feeds/xyz.atom"),
+      result);
   }
 }

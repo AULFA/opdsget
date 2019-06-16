@@ -39,18 +39,23 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -145,6 +150,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
       return retrieval
         .processFeed(Optional.empty(), in_configuration.remoteURI())
+        .thenCompose(ignored -> retrieval.indexTask())
         .thenCompose(ignored -> retrieval.squashTask())
         .thenCompose(ignored -> retrieval.archiveFeedTask());
     }
@@ -152,11 +158,17 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
   private static final class Retrieval
   {
+    private static final Pattern WHITESPACE =
+      Pattern.compile("\\s+");
+    private static final Pattern NOT_UPPERCASE_ALPHA_NUMERIC =
+      Pattern.compile("[^\\p{Lu}\\p{Digit}]+");
+
     private final OPDSGetConfiguration configuration;
     private final ExecutorService executor;
     private final OPDSHTTPType http;
     private final OPDSXMLParsers parsers;
-    private final Set<URI> processed;
+    private final HashSet<URI> retrieved;
+    private final Map<URI, OPDSDocumentProcessed> processed;
     private final Object processed_lock;
     private final EPUBSquasherProviderType squashers;
 
@@ -178,7 +190,8 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       this.squashers =
         Objects.requireNonNull(in_squashers, "squashers");
 
-      this.processed = new HashSet<>(128);
+      this.retrieved = new HashSet<>(128);
+      this.processed = new HashMap<>(128);
       this.processed_lock = new Object();
     }
 
@@ -198,9 +211,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
 
       return CompletableFuture
         .supplyAsync(() -> this.processOne(document, uri), this.executor)
-        .thenComposeAsync(
-          this::runSubTasksIfNecessary,
-          ForkJoinPool.commonPool());
+        .thenComposeAsync(this::runSubTasksIfNecessary, ForkJoinPool.commonPool());
     }
 
     private CompletableFuture<Void> runSubTasksIfNecessary(
@@ -303,8 +314,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       final OPDSDocumentProcessed document,
       final URI uri)
     {
-      return CompletableFuture
-        .runAsync(() -> this.downloadBook(document, uri), this.executor);
+      return CompletableFuture.runAsync(() -> this.downloadBook(document, uri), this.executor);
     }
 
     private Optional<OPDSDocumentProcessed> processOne(
@@ -318,10 +328,10 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
          */
 
         synchronized (this.processed_lock) {
-          if (this.processed.contains(uri)) {
+          if (this.retrieved.contains(uri)) {
             return Optional.empty();
           }
-          this.processed.add(uri);
+          this.retrieved.add(uri);
         }
 
         /*
@@ -356,6 +366,14 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         final var result =
           new OPDSDocumentProcessor()
             .process(this.configuration, document);
+
+        synchronized (this.processed_lock) {
+          if (this.processed.containsKey(uri)) {
+            throw new IllegalStateException(
+              "URI " + uri + " should not already have been processed");
+          }
+          this.processed.put(uri, result);
+        }
 
         /*
          * Serialize properties about the document if this is the "starting"
@@ -392,8 +410,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       final var file_tmp = temporaryFile(file);
 
       Files.createDirectories(file_tmp.getParent());
-      try (var out =
-             Files.newBufferedWriter(file_tmp, TRUNCATE_EXISTING, CREATE)) {
+      try (var out = Files.newBufferedWriter(file_tmp, TRUNCATE_EXISTING, CREATE)) {
         out.append("initial_file = ");
         out.append(output.relativize(result.file().file()).toString());
         out.newLine();
@@ -428,8 +445,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       final var path_tmp = temporaryFile(path);
 
       Files.createDirectories(path_tmp.getParent());
-      try (var output =
-             Files.newOutputStream(path_tmp, CREATE_NEW)) {
+      try (var output = Files.newOutputStream(path_tmp, CREATE_NEW)) {
         transformer.transform(
           new DOMSource(document),
           new StreamResult(output));
@@ -512,6 +528,61 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     CompletableFuture<Void> squashTask()
     {
       return CompletableFuture.runAsync(this::squash, this.executor);
+    }
+
+    private void index()
+    {
+      try {
+        final Map<URI, OPDSDocumentProcessed> processedCopy;
+        synchronized (this.processed_lock) {
+          processedCopy = new HashMap<>(this.processed);
+        }
+
+        final var rewriter = this.configuration.uriRewriter();
+        final Map<String, List<URI>> index = new TreeMap<>();
+        for (final var mapEntry : processedCopy.entrySet()) {
+          final var document = mapEntry.getValue();
+          if (document.isEntry()) {
+            final var terms = List.of(WHITESPACE.split(document.title().toUpperCase()));
+            for (final var term : terms) {
+              final var termTrimmed =
+                term.trim().replaceAll(NOT_UPPERCASE_ALPHA_NUMERIC.pattern(), "");
+              if (!termTrimmed.isBlank()) {
+                var uris = index.get(termTrimmed);
+                if (uris == null) {
+                  uris = new ArrayList<>(8);
+                }
+
+                final var rewriteURI = rewriter.rewrite(Optional.empty(), document.file());
+                uris.add(rewriteURI);
+                index.put(termTrimmed, uris);
+              }
+            }
+          }
+        }
+
+        final var indexPath = this.configuration.output().resolve("index.txt");
+        LOG.info("index {}", indexPath);
+
+        try (var writer = Files.newBufferedWriter(indexPath, UTF_8, TRUNCATE_EXISTING, CREATE)) {
+          for (final var term : index.keySet()) {
+            for (final var uri : index.get(term)) {
+              writer.append(term);
+              writer.append(" ");
+              writer.append(uri.toString());
+              writer.newLine();
+            }
+          }
+          writer.flush();
+        }
+      } catch (final Exception e) {
+        throw new CompletionException(e);
+      }
+    }
+
+    CompletableFuture<Void> indexTask()
+    {
+      return CompletableFuture.runAsync(this::index, this.executor);
     }
   }
 }

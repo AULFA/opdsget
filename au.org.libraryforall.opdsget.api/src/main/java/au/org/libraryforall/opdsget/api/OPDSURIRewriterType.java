@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
+package au.org.libraryforall.opdsget.api;
+
+import java.net.URI;
+import java.util.Optional;
+
 /**
- * Core types and functions.
+ * The type of URI rewriters.
  */
 
-module au.org.libraryforall.opdsget.api
+public interface OPDSURIRewriterType
 {
-  requires static org.immutables.value;
+  /**
+   * Rewrite a file reference to a URI.
+   *
+   * @param source The source file containing the link
+   * @param target The target file of the link
+   *
+   * @return A URI
+   */
 
-  requires com.io7m.jaffirm.core;
-  requires org.slf4j;
-  requires java.xml;
-
-  exports au.org.libraryforall.opdsget.api;
+  URI rewrite(
+    Optional<OPDSLocalFile> source,
+    OPDSLocalFile target);
 }
