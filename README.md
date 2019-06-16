@@ -10,6 +10,7 @@ An OPDS feed retrieval and rewriting tool.
 * Efficient parallel downloading of large feeds
 * Transparent rewriting of feed URIs to make feeds readable offline
 * Byte-for-byte reproducible feed archives (including fixing of time-related fields from feeds)
+* Search index generation for feeds
 * Well designed modular API for use in Java 11+ programs
 * Command line interface
 * EPUB squashing with [epubsquash](https://github.com/AULFA/epubsquash)
@@ -170,6 +171,41 @@ Content that is excluded by the `--exclude-content-kind` parameter
 will _not_ be affected by the `--uri-rewrite-scheme` option; only
 content that is actually downloaded will have rewritten links. By
 default, `opdsget` excludes nothing.
+
+## Search Index
+
+The `opdsget` tool constructs a rudimentary search index for feeds.
+
+When the `opdsget` tool encounters a document with an Atom `entry`
+element as the root element, it locates the `title` element and breaks
+it up into whitespace-delimited words. It then associates each of those
+words with the URI of the document. The associations between these
+collected words and document URIs are recorded into a file,
+`index.txt`, in a simple line-based format:
+
+```
+term = ? any uppercase alphanumeric string ?
+
+uri = ? any valid URI ?
+
+line_terminator = ( U+000D U+000A | U+000A ) ;
+
+line = term , uri , line_terminator ;
+
+file = { line } ;
+```
+
+An example index:
+
+```
+ADVENTURE simplified-bundled://feeds/D8038E93C488F0385F94D4F42E0FF481D9946C609254E600CF5EEEB7E51C14B1.atom
+ADVENTURE simplified-bundled://feeds/DAD0E0D07CE3FCE49D620EABE32669805D90D3C8320E95A3F6AC30A09CD955DE.atom
+ADVENTURES simplified-bundled://feeds/28AB7827DE7A98C2302A9DDC4046AC49FC4897DFFCF227A90838C30DB3E6257C.atom
+AIVA simplified-bundled://feeds/F5713780AA60C83FA6C8523BA5568BE42BFBE8F5209E730A6BFADD4AE6823C3D.atom
+ALICE simplified-bundled://feeds/84ACFE1FA1DC4D87DE0FB571F85027435553388272711B9BF7EA0046D0EFCEEF.atom
+ALICES simplified-bundled://feeds/28AB7827DE7A98C2302A9DDC4046AC49FC4897DFFCF227A90838C30DB3E6257C.atom
+ALPHABET simplified-bundled://feeds/7CFE34EF40DA0A4B4249DC652998C70700F527782E3C3CFC68683C16D9A056B2.atom
+```
 
 ## Authentication
 
