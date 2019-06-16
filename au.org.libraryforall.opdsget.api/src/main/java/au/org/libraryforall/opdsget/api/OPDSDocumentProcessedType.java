@@ -70,6 +70,20 @@ public interface OPDSDocumentProcessedType
   OPDSLocalFile file();
 
   /**
+   * @return {@code true} iff the document is an OPDS entry
+   */
+
+  @Value.Parameter
+  boolean isEntry();
+
+  /**
+   * @return The title of the document
+   */
+
+  @Value.Parameter
+  String title();
+
+  /**
    * Check preconditions for the type.
    */
 

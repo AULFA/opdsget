@@ -39,9 +39,19 @@ public final class OPDSURIRewriters
 
   public static OPDSURIRewriterType relativeRewriter()
   {
-    return (sourceFile, targetFile) -> {
-      final var sourceURI = sourceFile.file().toAbsolutePath().getParent();
-      Invariants.checkInvariant(sourceURI, sourceURI.isAbsolute(), u -> "Source must be absolute");
+    return (sourceFileOpt, targetFile) -> {
+      if (sourceFileOpt.isPresent()) {
+        final var sourceFile = sourceFileOpt.get();
+        final var sourceURI = sourceFile.file().toAbsolutePath().getParent();
+        Invariants.checkInvariant(sourceURI, sourceURI.isAbsolute(), u -> "Source must be absolute");
+        final var targetURI = targetFile.file().toAbsolutePath();
+        Invariants.checkInvariant(targetURI, targetURI.isAbsolute(), u -> "Target must be absolute");
+        final var relative = URI.create(sourceURI.relativize(targetURI).toString());
+        Invariants.checkInvariant(relative, !relative.isAbsolute(), u -> "Output must be relative");
+        return relative;
+      }
+
+      final var sourceURI = targetFile.file().getParent().getParent().toAbsolutePath();
       final var targetURI = targetFile.file().toAbsolutePath();
       Invariants.checkInvariant(targetURI, targetURI.isAbsolute(), u -> "Target must be absolute");
       final var relative = URI.create(sourceURI.relativize(targetURI).toString());

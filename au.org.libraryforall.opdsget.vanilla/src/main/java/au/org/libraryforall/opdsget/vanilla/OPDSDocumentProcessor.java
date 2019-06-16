@@ -39,6 +39,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The default document processor implementation.
@@ -53,6 +54,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
   private final XPath xpath;
   private final XPathExpression xpath_links;
   private final XPathExpression xpath_updated;
+  private final XPathExpression xpath_title;
 
   /**
    * Construct a new processor.
@@ -68,6 +70,8 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
         "//*[local-name()='link' and namespace-uri()='http://www.w3.org/2005/Atom']");
       this.xpath_updated = this.xpath.compile(
         "//*[local-name()='updated' and namespace-uri()='http://www.w3.org/2005/Atom']");
+      this.xpath_title = this.xpath.compile(
+        "//*[local-name()='title' and namespace-uri()='http://www.w3.org/2005/Atom']");
     } catch (final XPathExpressionException e) {
       throw new IllegalStateException(e);
     }
@@ -79,7 +83,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     final OPDSLocalFile source,
     final OPDSLocalFile target)
   {
-    link.setAttribute("href", rewriter.rewrite(source, target).toString());
+    link.setAttribute("href", rewriter.rewrite(Optional.of(source), target).toString());
   }
 
   /*
@@ -135,6 +139,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     final var currentFile =
       OPDSLocalFile.of(document_uri, file);
 
+    final var classification = this.findTitle(document);
     this.rewriteAndCollectLinks(configuration, currentFile, document, feeds, images, books);
     this.removeUpdatedElements(document);
 
@@ -143,7 +148,24 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
       .setBooks(books)
       .setImages(images)
       .setFile(currentFile)
+      .setTitle(classification.title)
+      .setEntry(classification.isEntry)
       .build();
+  }
+
+  private Classification findTitle(final Document document)
+    throws XPathExpressionException
+  {
+    final var root = document.getDocumentElement();
+    final var isEntry = Objects.equals(root.getLocalName(), "entry");
+    final String title;
+    final var titles = (NodeList) this.xpath_title.evaluate(document, XPathConstants.NODESET);
+    if (titles.getLength() > 0) {
+      title = titles.item(0).getTextContent();
+    } else {
+      title = "";
+    }
+    return new Classification(isEntry, title);
   }
 
   private void rewriteAndCollectLinks(
@@ -155,9 +177,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     final Map<URI, OPDSLocalFile> books)
     throws XPathExpressionException
   {
-    final var links =
-      (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
-
+    final var links = (NodeList) this.xpath_links.evaluate(document, XPathConstants.NODESET);
     final var rewriter = configuration.uriRewriter();
     for (var index = 0; index < links.getLength(); ++index) {
       final var link = (Element) links.item(index);
@@ -232,6 +252,20 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
     for (var index = 0; index < updateds.getLength(); ++index) {
       final var updated = (Element) updateds.item(index);
       updated.setTextContent("2000-01-01T00:00:00Z");
+    }
+  }
+
+  private static final class Classification
+  {
+    private final boolean isEntry;
+    private final String title;
+
+    Classification(
+      final boolean inIsEntry,
+      final String inTitle)
+    {
+      this.isEntry = inIsEntry;
+      this.title = Objects.requireNonNull(inTitle, "title");
     }
   }
 }

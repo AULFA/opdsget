@@ -17,6 +17,7 @@
 package au.org.libraryforall.opdsget.api;
 
 import java.net.URI;
+import java.util.Optional;
 
 /**
  * The type of URI rewriters.
@@ -34,6 +35,6 @@ public interface OPDSURIRewriterType
    */
 
   URI rewrite(
-    OPDSLocalFile source,
+    Optional<OPDSLocalFile> source,
     OPDSLocalFile target);
 }
