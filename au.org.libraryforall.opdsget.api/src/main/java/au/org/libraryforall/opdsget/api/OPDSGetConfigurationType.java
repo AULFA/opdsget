@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -247,4 +248,14 @@ public interface OPDSGetConfigurationType
 
   @Value.Parameter
   Optional<OPDSSquashConfiguration> squash();
+
+  /**
+   * @return The amount by which to scale cover images
+   */
+
+  @Value.Default
+  default OptionalDouble scaleImages()
+  {
+    return OptionalDouble.empty();
+  }
 }

@@ -34,6 +34,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -50,6 +51,7 @@ import java.util.ServiceLoader;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Pattern;
@@ -152,6 +154,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
         .processFeed(Optional.empty(), in_configuration.remoteURI())
         .thenCompose(ignored -> retrieval.indexTask())
         .thenCompose(ignored -> retrieval.squashTask())
+        .thenCompose(ignored -> retrieval.scaleImagesTask())
         .thenCompose(ignored -> retrieval.archiveFeedTask());
     }
   }
@@ -583,6 +586,27 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
     CompletableFuture<Void> indexTask()
     {
       return CompletableFuture.runAsync(this::index, this.executor);
+    }
+
+    private void scaleImages()
+    {
+      final var scaleOpt = this.configuration.scaleImages();
+      if (scaleOpt.isEmpty()) {
+        LOG.debug("no scaling value specified, no scaling will be performed");
+        return;
+      }
+
+      try {
+        new OPDSImageScaler(this.configuration.imageDirectory(), scaleOpt.getAsDouble())
+          .execute();
+      } catch (final IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+
+    CompletionStage<Void> scaleImagesTask()
+    {
+      return CompletableFuture.runAsync(this::scaleImages, this.executor);
     }
   }
 }
