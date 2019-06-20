@@ -49,6 +49,9 @@ Usage: opdsget [options]
       The zip archive that will be created for the feed
   * --output-directory
       The directory that will contain the downloaded feed objects
+    --scale-cover-images
+      A scale value in the range (0.0, 1.0] by which to scale cover images
+      Default: 1.0
     --squash
       True if EPUB files should be squashed to reduce their size
       Default: false
