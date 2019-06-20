@@ -214,8 +214,9 @@ ALPHABET simplified-bundled://feeds/7CFE34EF40DA0A4B4249DC652998C70700F527782E3C
 ## Image Scaling
 
 The `opdsget` command line program provides an option, `--scale-cover-images`,
-can optionally rescale and compress images that occur in OPDS feeds. It takes
-a real value in the range `(0.0, 1.0])` and scales cover images by that value.
+that can optionally rescale and compress images that occur in OPDS
+feeds. It takes a real value in the range `(0.0, 1.0])` and scales
+cover images by that value.
 
 For example, to scale all cover images by 50%:
 
