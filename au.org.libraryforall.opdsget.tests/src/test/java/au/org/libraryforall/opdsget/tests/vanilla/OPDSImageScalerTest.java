@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-/**
- * The vanilla implementation of the {@code opdsget} API.
- */
+package au.org.libraryforall.opdsget.tests.vanilla;
 
-module au.org.libraryforall.opdsget.vanilla
+import au.org.libraryforall.opdsget.vanilla.OPDSImageScaler;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+
+public class OPDSImageScalerTest
 {
-  requires java.xml;
-
-  requires au.org.libraryforall.epubsquash.api;
-  requires au.org.libraryforall.opdsget.api;
-  requires org.slf4j;
-  requires java.desktop;
-
-  uses au.org.libraryforall.epubsquash.api.EPUBSquasherProviderType;
-
-  exports au.org.libraryforall.opdsget.vanilla;
-
-  provides au.org.libraryforall.opdsget.api.OPDSRetrieverProviderType
-    with au.org.libraryforall.opdsget.vanilla.OPDSRetrievers;
+  public static void main(
+    final String[] args)
+    throws IOException
+  {
+    new OPDSImageScaler(Paths.get(args[0]), 0.5)
+      .execute();
+  }
 }

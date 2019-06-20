@@ -43,6 +43,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -137,6 +138,7 @@ public final class Main
           .setOutputArchive(
             Optional.ofNullable(parsed_arguments.output_archive)
               .map(Paths::get))
+          .setScaleImages(OptionalDouble.of(parsed_arguments.scaleCoverImages))
           .setAuthenticationSupplier(loadAuth(parsed_arguments.auth));
 
       if (parsed_arguments.squash) {
@@ -302,6 +304,12 @@ public final class Main
       required = false,
       description = "True if EPUB files should be squashed to reduce their size")
     private boolean squash;
+
+    @Parameter(
+      names = "--scale-cover-images",
+      required = false,
+      description = "A scale value in the range (0.0, 1.0] by which to scale cover images")
+    private double scaleCoverImages = 1.0;
 
     Arguments()
     {
