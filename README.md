@@ -13,6 +13,7 @@ An OPDS feed retrieval and rewriting tool.
 * Search index generation for feeds
 * Well designed modular API for use in Java 11+ programs
 * Command line interface
+* Cover image scaling and recompression
 * EPUB squashing with [epubsquash](https://github.com/AULFA/epubsquash)
 
 ## Requirements
