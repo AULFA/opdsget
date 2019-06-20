@@ -72,7 +72,7 @@ To download a feed `http://example.com/feed.atom` to directory
 authentication, simply run the following:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out
 ```
@@ -88,7 +88,7 @@ http://example.com/feed.atom
 --output-directory
 /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar @arguments.txt
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar @arguments.txt
 ```
 
 ## Archiving/Rewriting
@@ -102,7 +102,7 @@ fixed values in order to help ensure reproducible results. To produce
 a zip file `/tmp/out.zip`, use the `--output-archive` option:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip
@@ -133,7 +133,7 @@ For the `NAMED` strategy, `--uri-rewrite-scheme-name` is used to
 specify the scheme:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --uri-rewrite-strategy NAMED \
@@ -150,17 +150,17 @@ will cause `opdsget` to avoid downloading book images, avoid downloading
 books, and avoid downloading anything other than feeds, respectively:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --output-directory /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind books \
   --output-directory /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --exclude-content-kind books \
@@ -205,6 +205,22 @@ AIVA simplified-bundled://feeds/F5713780AA60C83FA6C8523BA5568BE42BFBE8F5209E730A
 ALICE simplified-bundled://feeds/84ACFE1FA1DC4D87DE0FB571F85027435553388272711B9BF7EA0046D0EFCEEF.atom
 ALICES simplified-bundled://feeds/28AB7827DE7A98C2302A9DDC4046AC49FC4897DFFCF227A90838C30DB3E6257C.atom
 ALPHABET simplified-bundled://feeds/7CFE34EF40DA0A4B4249DC652998C70700F527782E3C3CFC68683C16D9A056B2.atom
+```
+
+## Image Scaling
+
+The `opdsget` command line program provides an option, `--scale-cover-images`,
+can optionally rescale and compress images that occur in OPDS feeds. It takes
+a real value in the range `(0.0, 1.0])` and scales cover images by that value.
+
+For example, to scale all cover images by 50%:
+
+```
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+  --feed http://example.com/feed.atom \
+  --output-directory /tmp/out \
+  --output-archive /tmp/out.zip \
+  --scale-cover-images 0.5
 ```
 
 ## Authentication
@@ -258,7 +274,7 @@ Assuming the above example authentication file in `authentication.map`,
 the feed can be fetched using authentication information with:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.1-main.jar \
+$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip \
