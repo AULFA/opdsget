@@ -9,7 +9,7 @@
   <parent>
     <groupId>au.org.libraryforall</groupId>
     <artifactId>au.org.libraryforall.opdsget</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
   </parent>
 
   <artifactId>au.org.libraryforall.opdsget.api</artifactId>
