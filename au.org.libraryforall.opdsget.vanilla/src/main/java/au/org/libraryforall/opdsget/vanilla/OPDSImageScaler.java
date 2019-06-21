@@ -97,7 +97,7 @@ public final class OPDSImageScaler
             Double.valueOf(height));
 
           final var temp =
-            Files.createTempFile("opdsget-cover-", ".image");
+            path.resolveSibling(path.getFileName() + ".tmp");
 
           final var newImage =
             resize(image, (int) width, (int) height);
