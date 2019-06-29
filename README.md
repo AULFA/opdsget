@@ -1,6 +1,8 @@
 opdsget
 ===
 
+[![Build Status](https://img.shields.io/travis/AULFA/opdsget.svg?style=flat-square)](https://travis-ci.org/AULFA/opdsget)
+
 An OPDS feed retrieval and rewriting tool.
 
 ![opdsget](./src/site/resources/opdsget.jpg?raw=true)
