@@ -146,6 +146,7 @@ public final class Main
           OPDSSquashConfiguration.builder()
             .setMaximumImageHeight(parsed_arguments.image_max_height)
             .setMaximumImageWidth(parsed_arguments.image_max_width)
+            .setScaleFactor(parsed_arguments.image_scale)
             .build());
       }
 
@@ -298,6 +299,12 @@ public final class Main
       required = false,
       description = "The maximum height of images")
     private double image_max_height = 1170.0;
+
+    @Parameter(
+      names = "--squash-image-scale",
+      required = false,
+      description = "The image scale value")
+    private double image_scale = 1.0;
 
     @Parameter(
       names = "--squash",

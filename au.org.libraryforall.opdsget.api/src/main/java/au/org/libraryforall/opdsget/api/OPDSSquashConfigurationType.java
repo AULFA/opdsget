@@ -27,6 +27,16 @@ import org.immutables.value.Value;
 public interface OPDSSquashConfigurationType
 {
   /**
+   * @return The scale factor.
+   */
+
+  @Value.Default
+  default double scaleFactor()
+  {
+    return 1.0;
+  }
+
+  /**
    * @return The maximum image width, in pixels.
    */
 
