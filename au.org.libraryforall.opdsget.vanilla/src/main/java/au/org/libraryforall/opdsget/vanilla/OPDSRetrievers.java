@@ -507,6 +507,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
                   .setInputFile(epub)
                   .setTemporaryDirectory(Files.createTempDirectory("opdsget-retriever-"))
                   .setOutputFile(epub)
+                  .setScale(squash.scaleFactor())
                   .setMaximumImageHeight(squash.maximumImageHeight())
                   .setMaximumImageWidth(squash.maximumImageWidth())
                   .build());
