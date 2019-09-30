@@ -184,6 +184,7 @@ public final class OPDSDocumentProcessor implements OPDSDocumentProcessorType
 
       final var relation = link.getAttribute("rel");
       switch (relation) {
+        case "http://opds-spec.org/featured":
         case "subsection":
         case "collection":
         case "alternate": {
