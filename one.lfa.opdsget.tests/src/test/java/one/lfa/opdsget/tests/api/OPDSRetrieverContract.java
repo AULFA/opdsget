@@ -169,7 +169,7 @@ public abstract class OPDSRetrieverContract
 
   protected abstract Logger logger();
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testImmediate404()
     throws Throwable
   {
@@ -200,7 +200,7 @@ public abstract class OPDSRetrieverContract
     }
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testImmediateUnparseable()
     throws Throwable
   {
@@ -232,7 +232,7 @@ public abstract class OPDSRetrieverContract
     }
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testFollowNextLinks()
     throws Throwable
   {
@@ -318,7 +318,7 @@ public abstract class OPDSRetrieverContract
     }
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testDownloadBooksAndCovers()
     throws Throwable
   {
@@ -377,7 +377,7 @@ public abstract class OPDSRetrieverContract
     assertFileExists(this.output.resolve("index.txt"));
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testDownloadNoBooksOrCovers()
     throws Throwable
   {
@@ -420,7 +420,7 @@ public abstract class OPDSRetrieverContract
       Files.list(this.output.resolve("feeds")).count());
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testDownloadBooksAndCoversFromRealServer()
     throws Throwable
   {
@@ -455,7 +455,7 @@ public abstract class OPDSRetrieverContract
       Files.list(this.output.resolve("feeds")).count());
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testDownloadNoBooksAndCoversFromRealServer()
     throws Throwable
   {
@@ -494,7 +494,7 @@ public abstract class OPDSRetrieverContract
       "books/E541B79B837177FDC14D348067E560DCA5BEBAEB1C07C44B3A8F0D3815D5CE73.epub"));
   }
 
-  @Test
+  @Test(timeout = 20_000L)
   public void testBug2()
     throws Throwable
   {
@@ -552,7 +552,7 @@ public abstract class OPDSRetrieverContract
       "books/E6CAB9F69F8408D271A7605C86857F63D38E9AB80964A7BEF9B13053D5B8305E.epub"));
   }
 
-  @Test
+  @Test(timeout = 90_000L)
   public void testFeedbooksAcquisitions()
     throws Throwable
   {

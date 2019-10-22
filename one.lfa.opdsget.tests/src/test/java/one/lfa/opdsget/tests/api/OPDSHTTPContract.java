@@ -51,7 +51,7 @@ public abstract class OPDSHTTPContract
     }
   }
 
-  @Test
+  @Test(timeout = 90_000L)
   public final void testRetry()
     throws Exception
   {
@@ -77,7 +77,7 @@ public abstract class OPDSHTTPContract
     });
   }
 
-  @Test
+  @Test(timeout = 90_000L)
   public final void testRetryIOException()
   {
     final var http = this.http();
