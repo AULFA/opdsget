@@ -26,6 +26,7 @@
     <module>one.lfa.opdsget.tests</module>
     <module>one.lfa.opdsget.vanilla</module>
     <module>one.lfa.opdsget.cmdline</module>
+    <module>one.lfa.opdsget.manifest.schema</module>
   </modules>
 
   <properties>

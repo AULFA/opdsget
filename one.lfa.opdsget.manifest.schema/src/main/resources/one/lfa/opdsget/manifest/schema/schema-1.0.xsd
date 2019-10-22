@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            attributeFormDefault="unqualified"
+            elementFormDefault="qualified"
+            xmlns:om="urn:one.lfa.opdsget.manifest.xml:1:0"
+            targetNamespace="urn:one.lfa.opdsget.manifest.xml:1:0">
+
+  <xsd:simpleType name="hashType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A file hash (such as
+        "0c61874dff5dd081fae45a146964eaa2b03d4217b4c1095e4839fd7080fda66d").
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[a-f0-9]+"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="File">
+    <xsd:annotation>
+      <xsd:documentation>
+        A single downloadable file.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="name"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The unique (within the manifest) name of the file.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="hash"
+                     type="om:hashType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The hash of the file.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="hashAlgorithm"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The algorithm used to calculate the hash of the file (such as
+            "SHA-256").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Manifest">
+    <xsd:annotation>
+      <xsd:documentation>
+        A list of downloadable files.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="om:File"
+                     minOccurs="0"
+                     maxOccurs="1"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="base"
+                     type="xsd:anyURI"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The base attribute specifies the base address of the content; all
+            files specified in the manifest should be resolved relative to this
+            base address.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="rootFile"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The file that represents the root of the feed.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="id"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The id attribute specifies the globally-unique ID of the feed
+            described by the manifest.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:unique name="fileNamesAreUnique">
+      <xsd:annotation>
+        <xsd:documentation>
+          File names must be unique.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="om:File"/>
+      <xsd:field xpath="@name"/>
+    </xsd:unique>
+
+    <xsd:key name="fileKey">
+      <xsd:annotation>
+        <xsd:documentation>
+          File names can be referred to as primary keys.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="om:File"/>
+      <xsd:field xpath="@name"/>
+    </xsd:key>
+
+    <xsd:keyref name="rootFileExists"
+                refer="om:fileKey">
+      <xsd:annotation>
+        <xsd:documentation>
+          The specified root file must exist in the manifest.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="."/>
+      <xsd:field xpath="@rootFile"/>
+    </xsd:keyref>
+  </xsd:element>
+
+</xsd:schema>
