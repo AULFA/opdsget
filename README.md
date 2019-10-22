@@ -78,7 +78,7 @@ To download a feed `http://example.com/feed.atom` to directory
 authentication, simply run the following:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out
 ```
@@ -94,7 +94,7 @@ http://example.com/feed.atom
 --output-directory
 /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar @arguments.txt
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar @arguments.txt
 ```
 
 ## Archiving/Rewriting
@@ -108,7 +108,7 @@ fixed values in order to help ensure reproducible results. To produce
 a zip file `/tmp/out.zip`, use the `--output-archive` option:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip
@@ -139,7 +139,7 @@ For the `NAMED` strategy, `--uri-rewrite-scheme-name` is used to
 specify the scheme:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --uri-rewrite-strategy NAMED \
@@ -156,17 +156,17 @@ will cause `opdsget` to avoid downloading book images, avoid downloading
 books, and avoid downloading anything other than feeds, respectively:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --output-directory /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind books \
   --output-directory /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --exclude-content-kind books \
@@ -223,7 +223,7 @@ cover images by that value.
 For example, to scale all cover images by 50%:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip \
@@ -281,7 +281,7 @@ Assuming the above example authentication file in `authentication.map`,
 the feed can be fetched using authentication information with:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip \
