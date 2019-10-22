@@ -31,6 +31,7 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.internal.Console;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,8 @@ public final class Main
     } catch (final ParameterException e) {
       LOG.error("could not parse command line arguments: {}", e.getMessage());
       final var sb = new StringBuilder(128);
-      jcommander.usage(sb);
+      jcommander.setConsole(new StringBuilderConsole(sb));
+      jcommander.usage();
       System.err.println(sb.toString());
       System.exit(1);
       return;
@@ -105,7 +107,8 @@ public final class Main
     } catch (final Exception e) {
       LOG.error("could not parse one or more content kinds: {}", e.getMessage());
       final var sb = new StringBuilder(128);
-      jcommander.usage(sb);
+      jcommander.setConsole(new StringBuilderConsole(sb));
+      jcommander.usage();
       System.err.println(sb.toString());
       System.exit(1);
       return;
@@ -134,7 +137,9 @@ public final class Main
           .setOutput(parsed_arguments.output_directory)
           .setRemoteURI(parsed_arguments.feed)
           .setFetchedKinds(included_kinds)
-          .setUriRewriter(uriRewriterStrategy(parsed_arguments, parsed_arguments.uri_rewrite_strategy))
+          .setUriRewriter(uriRewriterStrategy(
+            parsed_arguments,
+            parsed_arguments.uri_rewrite_strategy))
           .setOutputArchive(
             Optional.ofNullable(parsed_arguments.output_archive)
               .map(Paths::get))
@@ -343,6 +348,36 @@ public final class Main
      */
 
     RELATIVE
+  }
+
+  private static final class StringBuilderConsole implements Console
+  {
+    private final StringBuilder stringBuilder;
+
+    StringBuilderConsole(
+      final StringBuilder inStringBuilder)
+    {
+      this.stringBuilder = Objects.requireNonNull(inStringBuilder, "inStringBuilder");
+    }
+
+    @Override
+    public void print(final String msg)
+    {
+      this.stringBuilder.append(msg);
+    }
+
+    @Override
+    public void println(final String msg)
+    {
+      this.stringBuilder.append(msg);
+      this.stringBuilder.append(System.lineSeparator());
+    }
+
+    @Override
+    public char[] readPassword(final boolean echoInput)
+    {
+      return new char[0];
+    }
   }
 
   final class OPDSLogLevelConverter implements IStringConverter<OPDSLogLevel>
