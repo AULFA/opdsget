@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.api;
+
+import java.io.OutputStream;
+
 /**
- * Core types and functions.
+ * A provider of manifest writers.
  */
 
-module one.lfa.opdsget.api
+public interface OPDSManifestWriterProviderType
 {
-  requires static org.immutables.value;
+  /**
+   * Create a new writer that will write the given manifest to the given output stream.
+   *
+   * @param description  The manifest description
+   * @param outputStream The output stream
+   *
+   * @return A new writer
+   */
 
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
+  OPDSManifestWriterType createWriter(
+    OPDSManifestDescription description,
+    OutputStream outputStream);
 }

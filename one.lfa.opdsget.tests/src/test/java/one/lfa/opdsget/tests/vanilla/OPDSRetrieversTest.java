@@ -20,6 +20,7 @@ import one.lfa.epubsquash.vanilla.EPUBSquashers;
 import one.lfa.opdsget.api.OPDSHTTPType;
 import one.lfa.opdsget.api.OPDSRetrieverProviderType;
 import one.lfa.opdsget.tests.api.OPDSRetrieverContract;
+import one.lfa.opdsget.vanilla.OPDSManifestWriters;
 import one.lfa.opdsget.vanilla.OPDSRetrievers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public final class OPDSRetrieversTest extends OPDSRetrieverContract
   @Override
   protected OPDSRetrieverProviderType retrievers(final OPDSHTTPType http)
   {
-    return OPDSRetrievers.providerWith(new EPUBSquashers(), http);
+    return OPDSRetrievers.providerWith(new EPUBSquashers(), new OPDSManifestWriters(), http);
   }
 
   @Override

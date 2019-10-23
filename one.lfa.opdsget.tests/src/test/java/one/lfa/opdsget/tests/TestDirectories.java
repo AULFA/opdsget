@@ -14,22 +14,34 @@
  * limitations under the License.
  */
 
-package one.lfa.opdsget.tests.vanilla;
-
-import one.lfa.opdsget.vanilla.OPDSImageScaler;
+package one.lfa.opdsget.tests;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class OPDSImageScalerTest
+public final class TestDirectories
 {
-  public static void main(
-    final String[] args)
+  private TestDirectories()
+  {
+
+  }
+
+  public static Path temporaryDirectory()
     throws IOException
   {
-    new OPDSImageScaler(Paths.get(args[0]), (kind, file) -> {
+    final var dir = temporaryBaseDirectory();
+    return Files.createTempDirectory(dir, "opdsget-");
+  }
 
-    }, 0.5)
-      .execute();
+  public static Path temporaryBaseDirectory()
+    throws IOException
+  {
+    final var tmpBase = System.getProperty("java.io.tmpdir");
+    final var path0 = Paths.get(tmpBase);
+    final var path1 = path0.resolve("opdsget");
+    Files.createDirectories(path1);
+    return path1;
   }
 }

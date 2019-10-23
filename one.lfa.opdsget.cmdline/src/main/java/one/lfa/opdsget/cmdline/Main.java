@@ -31,6 +31,7 @@ import one.lfa.opdsget.api.OPDSHTTPDefault;
 import one.lfa.opdsget.api.OPDSSquashConfiguration;
 import one.lfa.opdsget.api.OPDSURIRewriterType;
 import one.lfa.opdsget.api.OPDSURIRewriters;
+import one.lfa.opdsget.vanilla.OPDSManifestWriters;
 import one.lfa.opdsget.vanilla.OPDSRetrievers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +135,7 @@ public final class Main
     try {
       final var builder =
         OPDSGetConfiguration.builder()
-          .setOutput(parsed_arguments.output_directory)
+          .setOutput(parsed_arguments.output_directory.toAbsolutePath())
           .setRemoteURI(parsed_arguments.feed)
           .setFetchedKinds(included_kinds)
           .setUriRewriter(uriRewriterStrategy(
@@ -142,7 +143,8 @@ public final class Main
             parsed_arguments.uri_rewrite_strategy))
           .setOutputArchive(
             Optional.ofNullable(parsed_arguments.output_archive)
-              .map(Paths::get))
+              .map(Paths::get)
+              .map(Path::toAbsolutePath))
           .setScaleImages(OptionalDouble.of(parsed_arguments.scaleCoverImages))
           .setAuthenticationSupplier(loadAuth(parsed_arguments.auth));
 
@@ -160,6 +162,7 @@ public final class Main
       final var retriever =
         OPDSRetrievers.providerWith(
           new EPUBSquashers(),
+          new OPDSManifestWriters(),
           new OPDSHTTPDefault())
           .create(exec);
 

@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.vanilla;
+
 /**
- * Core types and functions.
+ * The kind of a manifest entry.
  */
 
-module one.lfa.opdsget.api
+public enum OPDSManifestFileEntryKind
 {
-  requires static org.immutables.value;
+  /**
+   * The entry is general use (a feed, an image, etc).
+   */
 
-  requires transitive com.io7m.jlexing.core;
+  GENERAL,
 
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
+  /**
+   * The entry is the root feed.
+   */
 
-  exports one.lfa.opdsget.api;
+  ROOT_FEED,
+
+  /**
+   * The entry is a search index.
+   */
+
+  SEARCH_INDEX
 }

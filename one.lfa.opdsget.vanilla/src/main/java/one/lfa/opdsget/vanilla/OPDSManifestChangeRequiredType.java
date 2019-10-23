@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.vanilla;
+
+import java.nio.file.Path;
+
 /**
- * Core types and functions.
+ * A function called when a file in the manifest needs to be rehashed.
  */
 
-module one.lfa.opdsget.api
+public interface OPDSManifestChangeRequiredType
 {
-  requires static org.immutables.value;
+  /**
+   * A file changed.
+   *
+   * @param kind The kind of file entry
+   * @param file The file that changed
+   */
 
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
+  void onFileChanged(
+    OPDSManifestFileEntryKind kind,
+    Path file);
 }

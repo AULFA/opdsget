@@ -30,6 +30,7 @@ import java.util.Objects;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static one.lfa.opdsget.vanilla.OPDSManifestFileEntryKind.GENERAL;
 
 /**
  * An image scaler that can change the sizes of images in a directory.
@@ -40,21 +41,44 @@ public final class OPDSImageScaler
   private static final Logger LOG = LoggerFactory.getLogger(OPDSImageScaler.class);
 
   private final Path directory;
+  private final OPDSManifestChangeRequiredType changeRequired;
   private final double scale;
 
   /**
    * Construct a new scaler.
    *
-   * @param inDirectory The input directory
-   * @param inScale     The scaling factor
+   * @param inDirectory      The input directory
+   * @param inChangeRequired A function called when an image is scaled
+   * @param inScale          The scaling factor
    */
 
   public OPDSImageScaler(
     final Path inDirectory,
+    final OPDSManifestChangeRequiredType inChangeRequired,
     final double inScale)
   {
-    this.directory = Objects.requireNonNull(inDirectory, "directory");
+    this.directory =
+      Objects.requireNonNull(inDirectory, "directory");
+    this.changeRequired =
+      Objects.requireNonNull(inChangeRequired, "changeRequired");
+
     this.scale = inScale;
+  }
+
+  private static BufferedImage resize(
+    final BufferedImage image,
+    final int newWidth,
+    final int newHeight)
+  {
+    final var tmp =
+      image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+    final var targetImage =
+      new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+
+    final var g2d = targetImage.createGraphics();
+    g2d.drawImage(tmp, 0, 0, null);
+    g2d.dispose();
+    return targetImage;
   }
 
   /**
@@ -83,49 +107,36 @@ public final class OPDSImageScaler
         LOG.debug("scale {}", path);
 
         try (var stream = new BufferedInputStream(Files.newInputStream(path), 8192)) {
+          final Path temp;
           final var image = ImageIO.read(stream);
-          final var originalWidth = image.getWidth();
-          final var width = (double) originalWidth * this.scale;
-          final var originalHeight = image.getHeight();
-          final var height = (double) originalHeight * this.scale;
+          if (image != null) {
+            final var originalWidth = image.getWidth();
+            final var width = (double) originalWidth * this.scale;
+            final var originalHeight = image.getHeight();
+            final var height = (double) originalHeight * this.scale;
 
-          LOG.info(
-            "scale {} {}x{} -> {}x{}", path,
-            Integer.valueOf(originalWidth),
-            Integer.valueOf(originalHeight),
-            Double.valueOf(width),
-            Double.valueOf(height));
+            LOG.info(
+              "scale {} {}x{} -> {}x{}", path,
+              Integer.valueOf(originalWidth),
+              Integer.valueOf(originalHeight),
+              Double.valueOf(width),
+              Double.valueOf(height));
 
-          final var temp =
-            path.resolveSibling(path.getFileName() + ".tmp");
-
-          final var newImage =
-            resize(image, (int) width, (int) height);
-
-          final var result = ImageIO.write(newImage, "jpg", temp.toFile());
-          if (!result) {
-            throw new IOException("ImageIO.write returned false!");
+            temp = path.resolveSibling(path.getFileName() + ".tmp");
+            final var newImage = resize(image, (int) width, (int) height);
+            final var result = ImageIO.write(newImage, "jpg", temp.toFile());
+            if (!result) {
+              throw new IOException("ImageIO.write returned false!");
+            }
+          } else {
+            LOG.error("unable to parse image {}", path);
+            temp = path;
           }
 
           Files.move(temp, path, REPLACE_EXISTING, ATOMIC_MOVE);
+          this.changeRequired.onFileChanged(GENERAL, path);
         }
       }
     }
-  }
-
-  private static BufferedImage resize(
-    final BufferedImage image,
-    final int newWidth,
-    final int newHeight)
-  {
-    final var tmp =
-      image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-    final var targetImage =
-      new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
-
-    final var g2d = targetImage.createGraphics();
-    g2d.drawImage(tmp, 0, 0, null);
-    g2d.dispose();
-    return targetImage;
   }
 }

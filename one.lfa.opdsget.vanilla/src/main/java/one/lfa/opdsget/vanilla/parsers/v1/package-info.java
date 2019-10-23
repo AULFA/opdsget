@@ -15,18 +15,7 @@
  */
 
 /**
- * Core types and functions.
+ * Parser handlers for the v1 schema.
  */
 
-module one.lfa.opdsget.api
-{
-  requires static org.immutables.value;
-
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
-}
+package one.lfa.opdsget.vanilla.parsers.v1;

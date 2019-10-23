@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.api;
+
 /**
- * Core types and functions.
+ * An error receiver for manifest readers.
  */
 
-module one.lfa.opdsget.api
+public interface OPDSManifestReaderErrorReceiverType
 {
-  requires static org.immutables.value;
+  /**
+   * Receive a parse error.
+   *
+   * @param error The error
+   */
 
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
+  void onError(
+    OPDSManifestParseError error);
 }

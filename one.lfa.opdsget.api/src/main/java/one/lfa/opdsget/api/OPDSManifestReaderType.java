@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.api;
+
+import java.io.Closeable;
+import java.util.Optional;
+
 /**
- * Core types and functions.
+ * A manifest reader.
  */
 
-module one.lfa.opdsget.api
+public interface OPDSManifestReaderType extends Closeable
 {
-  requires static org.immutables.value;
+  /**
+   * Read a manifest.
+   *
+   * @return A parsed manifest, if no errors occurred
+   */
 
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
+  Optional<OPDSManifestDescription> read();
 }

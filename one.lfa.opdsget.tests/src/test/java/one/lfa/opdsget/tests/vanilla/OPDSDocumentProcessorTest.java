@@ -17,6 +17,7 @@
 package one.lfa.opdsget.tests.vanilla;
 
 import one.lfa.opdsget.api.OPDSGetConfiguration;
+import one.lfa.opdsget.tests.TestDirectories;
 import one.lfa.opdsget.vanilla.OPDSDocumentProcessor;
 import one.lfa.opdsget.vanilla.OPDSXMLParsers;
 import org.junit.After;
@@ -51,7 +52,7 @@ public final class OPDSDocumentProcessorTest
   public void setUp()
     throws IOException
   {
-    this.output = Files.createTempDirectory("opdsget-tests");
+    this.output = TestDirectories.temporaryDirectory();
     this.processor = new OPDSDocumentProcessor();
     this.xpath_factory = XPathFactory.newInstance();
     this.xpath = this.xpath_factory.newXPath();

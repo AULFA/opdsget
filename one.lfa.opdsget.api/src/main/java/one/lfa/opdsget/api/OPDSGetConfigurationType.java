@@ -253,9 +253,28 @@ public interface OPDSGetConfigurationType
    * @return The amount by which to scale cover images
    */
 
-  @Value.Default
-  default OptionalDouble scaleImages()
+  OptionalDouble scaleImages();
+
+  /**
+   * Check preconditions for the type.
+   */
+
+  @Value.Check
+  default void checkPreconditions()
   {
-    return OptionalDouble.empty();
+    final var outputPath = this.output();
+    if (!outputPath.isAbsolute()) {
+      throw new IllegalArgumentException(
+        String.format("Output path %s must be absolute", outputPath));
+    }
+
+    final var outputArchiveOpt = this.outputArchive();
+    if (outputArchiveOpt.isPresent()) {
+      final var outputArchive = outputArchiveOpt.get();
+      if (!outputArchive.isAbsolute()) {
+        throw new IllegalArgumentException(
+          String.format("Output archive path %s must be absolute", outputArchive));
+      }
+    }
   }
 }

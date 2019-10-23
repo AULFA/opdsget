@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.api;
+
+import java.io.InputStream;
+import java.net.URI;
+
 /**
- * Core types and functions.
+ * A provider of manifest readers.
  */
 
-module one.lfa.opdsget.api
+public interface OPDSManifestReaderProviderType
 {
-  requires static org.immutables.value;
+  /**
+   * Create a new writer that will read a manifest from the given input stream.
+   *
+   * @param errors      An error receiver
+   * @param uri         The URI of the input, for diagnostic messages
+   * @param inputStream The input stream
+   *
+   * @return A new reader
+   */
 
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
+  OPDSManifestReaderType createReader(
+    OPDSManifestReaderErrorReceiverType errors,
+    URI uri,
+    InputStream inputStream);
 }

@@ -16,6 +16,7 @@
 
 package one.lfa.opdsget.tests.vanilla;
 
+import one.lfa.opdsget.tests.TestDirectories;
 import one.lfa.opdsget.vanilla.OPDSArchiver;
 import org.junit.After;
 import org.junit.Assert;
@@ -40,6 +41,7 @@ public final class OPDSArchiverTest
   private Path output;
   private Path file;
   private Path file_tmp;
+  private Path files;
 
   @Rule public ExpectedException expected = ExpectedException.none();
 
@@ -47,9 +49,10 @@ public final class OPDSArchiverTest
   public void setUp()
     throws IOException
   {
-    this.output = Files.createTempDirectory("opdsget-tests-");
-    this.file = Files.createTempFile("output", ".zip");
-    this.file_tmp = Files.createTempFile("output", ".zip.tmp");
+    this.output = TestDirectories.temporaryDirectory();
+    this.files = TestDirectories.temporaryDirectory();
+    this.file = Files.createTempFile(this.files, "output", ".zip");
+    this.file_tmp = Files.createTempFile(this.files, "output", ".zip.tmp");
   }
 
   @After

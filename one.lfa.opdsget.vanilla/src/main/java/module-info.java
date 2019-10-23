@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
+import one.lfa.epubsquash.api.EPUBSquasherProviderType;
+import one.lfa.opdsget.api.OPDSManifestReaderProviderType;
+import one.lfa.opdsget.api.OPDSManifestWriterProviderType;
 import one.lfa.opdsget.api.OPDSRetrieverProviderType;
+import one.lfa.opdsget.vanilla.OPDSManifestReaders;
+import one.lfa.opdsget.vanilla.OPDSManifestWriters;
 import one.lfa.opdsget.vanilla.OPDSRetrievers;
 
 /**
@@ -23,16 +28,24 @@ import one.lfa.opdsget.vanilla.OPDSRetrievers;
 
 module one.lfa.opdsget.vanilla
 {
+  requires com.io7m.blackthorne.api;
+  requires com.io7m.jaffirm.core;
+  requires com.io7m.jxe.core;
+  requires java.desktop;
   requires java.xml;
-
   requires one.lfa.epubsquash.api;
   requires one.lfa.opdsget.api;
+  requires one.lfa.opdsget.manifest.schema;
+  requires org.apache.commons.codec;
   requires org.slf4j;
-  requires java.desktop;
 
-  uses one.lfa.epubsquash.api.EPUBSquasherProviderType;
+  uses EPUBSquasherProviderType;
+  uses OPDSManifestReaderProviderType;
+  uses OPDSManifestWriterProviderType;
 
   exports one.lfa.opdsget.vanilla;
 
+  provides OPDSManifestReaderProviderType with OPDSManifestReaders;
+  provides OPDSManifestWriterProviderType with OPDSManifestWriters;
   provides OPDSRetrieverProviderType with OPDSRetrievers;
 }

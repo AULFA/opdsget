@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
+package one.lfa.opdsget.api;
+
+import java.io.Closeable;
+import java.io.IOException;
+
 /**
- * Core types and functions.
+ * A manifest writer.
  */
 
-module one.lfa.opdsget.api
+public interface OPDSManifestWriterType extends Closeable
 {
-  requires static org.immutables.value;
+  /**
+   * Write the manifest.
+   *
+   * @throws IOException On I/O errors
+   */
 
-  requires transitive com.io7m.jlexing.core;
-
-  requires com.io7m.jaffirm.core;
-  requires java.xml;
-  requires org.slf4j;
-
-  exports one.lfa.opdsget.api;
+  void write()
+    throws IOException;
 }

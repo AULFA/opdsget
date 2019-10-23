@@ -10,12 +10,12 @@
     <xsd:annotation>
       <xsd:documentation>
         A file hash (such as
-        "0c61874dff5dd081fae45a146964eaa2b03d4217b4c1095e4839fd7080fda66d").
+        "0C61874DFF5DD081FAE45A146964EAA2B03D4217B4C1095E4839FD7080FDA66D").
       </xsd:documentation>
     </xsd:annotation>
 
     <xsd:restriction base="xsd:string">
-      <xsd:pattern value="[a-f0-9]+"/>
+      <xsd:pattern value="[A-F0-9]+"/>
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -63,15 +63,18 @@
   <xsd:element name="Manifest">
     <xsd:annotation>
       <xsd:documentation>
-        A list of downloadable files.
+        A manifest of all the files that need to be downloaded in order to
+        reproduce a given OPDS feed. Manifests contain links to content, and
+        full hash information to ensure that content has been downloaded
+        correctly.
       </xsd:documentation>
     </xsd:annotation>
 
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="om:File"
-                     minOccurs="0"
-                     maxOccurs="1"/>
+                     minOccurs="1"
+                     maxOccurs="unbounded"/>
       </xsd:sequence>
 
       <xsd:attribute name="base"
@@ -92,6 +95,17 @@
         <xsd:annotation>
           <xsd:documentation>
             The file that represents the root of the feed.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="searchIndex"
+                     type="xsd:anyURI"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The file that represents the search index for the feed, if one
+            was provided.
           </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
@@ -140,6 +154,18 @@
 
       <xsd:selector xpath="."/>
       <xsd:field xpath="@rootFile"/>
+    </xsd:keyref>
+
+    <xsd:keyref name="searchIndexExists"
+                refer="om:fileKey">
+      <xsd:annotation>
+        <xsd:documentation>
+          The specified search index must exist in the manifest.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="."/>
+      <xsd:field xpath="@searchIndex"/>
     </xsd:keyref>
   </xsd:element>
 
