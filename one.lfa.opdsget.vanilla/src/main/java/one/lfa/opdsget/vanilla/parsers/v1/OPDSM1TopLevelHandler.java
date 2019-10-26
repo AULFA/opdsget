@@ -27,6 +27,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.Map;
 
 /**
@@ -70,6 +71,7 @@ public final class OPDSM1TopLevelHandler
     try {
       this.builder.setId(URI.create(attributes.getValue("id")));
       this.builder.setRootFile(attributes.getValue("rootFile"));
+      this.builder.setUpdated(OffsetDateTime.parse(attributes.getValue("updated")));
 
       final var base = attributes.getValue("base");
       if (base != null) {

@@ -99,6 +99,16 @@
         </xsd:annotation>
       </xsd:attribute>
 
+      <xsd:attribute name="updated"
+                     type="xsd:dateTime"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The time that the manifest was generated.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
       <xsd:attribute name="searchIndex"
                      type="xsd:anyURI"
                      use="optional">

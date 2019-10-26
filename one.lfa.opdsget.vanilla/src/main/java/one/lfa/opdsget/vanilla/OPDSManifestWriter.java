@@ -89,6 +89,7 @@ public final class OPDSManifestWriter implements OPDSManifestWriterType
 
       writer.writeAttribute("rootFile", this.description.rootFile());
       writer.writeAttribute("id", this.description.id().toString());
+      writer.writeAttribute("updated", this.description.updated().toString());
 
       final var searchOpt = this.description.searchIndex();
       if (searchOpt.isPresent()) {

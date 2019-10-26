@@ -19,6 +19,8 @@ package one.lfa.opdsget.api;
 import org.immutables.value.Value;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,6 +45,16 @@ public interface OPDSManifestDescriptionType
    */
 
   String rootFile();
+
+  /**
+   * @return The time the manifest was generated
+   */
+
+  @Value.Default
+  default OffsetDateTime updated()
+  {
+    return OffsetDateTime.now(ZoneId.of("UTC"));
+  }
 
   /**
    * @return The file that represents the search index of the feed
