@@ -136,6 +136,7 @@ public final class Main
       final var builder =
         OPDSGetConfiguration.builder()
           .setOutput(parsed_arguments.output_directory.toAbsolutePath())
+          .setOutputManifestBaseURI(Optional.ofNullable(parsed_arguments.output_manifest_base_uri))
           .setRemoteURI(parsed_arguments.feed)
           .setFetchedKinds(included_kinds)
           .setUriRewriter(uriRewriterStrategy(
@@ -292,6 +293,12 @@ public final class Main
       description = "The zip archive that will be created for the feed",
       required = false)
     private String output_archive;
+
+    @Parameter(
+      names = "--output-manifest-base-uri",
+      description = "The base URI that will be placed into manifest files",
+      required = false)
+    private URI output_manifest_base_uri;
 
     @Parameter(
       names = "--authentication",

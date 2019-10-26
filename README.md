@@ -53,6 +53,8 @@ Usage: opdsget [options]
       The zip archive that will be created for the feed
   * --output-directory
       The directory that will contain the downloaded feed objects
+    --output-manifest-base-uri
+      The base URI that will be placed into manifest files
     --scale-cover-images
       A scale value in the range (0.0, 1.0] by which to scale cover images
       Default: 1.0
@@ -65,6 +67,9 @@ Usage: opdsget [options]
     --squash-image-max-width
       The maximum width of images
       Default: 1600.0
+    --squash-image-scale
+      The image scale value
+      Default: 1.0
     --uri-rewrite-scheme-name
       The name of the URI scheme used to rewrite URIs (if applicable)
       Default: file
@@ -72,7 +77,6 @@ Usage: opdsget [options]
       The strategy that will be used to rewrite URIs
       Default: RELATIVE
       Possible Values: [NONE, NAMED, RELATIVE]
-
 ```
 
 To download a feed `http://example.com/feed.atom` to directory

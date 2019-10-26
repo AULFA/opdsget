@@ -277,4 +277,10 @@ public interface OPDSGetConfigurationType
       }
     }
   }
+
+  /**
+   * @return The base URI that will be placed into manifest files
+   */
+
+  Optional<URI> outputManifestBaseURI();
 }

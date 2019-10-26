@@ -254,6 +254,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       this.processed = new HashMap<>(128);
 
       this.manifestBuilder = OPDSManifestDescription.builder();
+      this.manifestBuilder.setBase(this.configuration.outputManifestBaseURI());
       this.manifestFiles = new HashMap<>(128);
       this.manifestLock = new Object();
 
