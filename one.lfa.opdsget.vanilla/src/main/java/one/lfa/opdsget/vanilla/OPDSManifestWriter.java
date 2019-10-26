@@ -34,7 +34,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * An OPDS manifest writer.
@@ -98,9 +100,7 @@ public final class OPDSManifestWriter implements OPDSManifestWriterType
         writer.writeAttribute("base", baseOpt.get().toString());
       }
 
-      for (final var entry : this.description.files().entrySet()) {
-        writeFile(writer, namespaceURI, entry.getValue());
-      }
+      this.writeFiles(namespaceURI, writer);
 
       writer.writeEndElement();
       writer.writeEndDocument();
@@ -117,6 +117,23 @@ public final class OPDSManifestWriter implements OPDSManifestWriterType
       this.outputStream.flush();
     } catch (final XMLStreamException | TransformerException e) {
       throw new IOException(e);
+    }
+  }
+
+  private void writeFiles(
+    final String namespaceURI,
+    final XMLStreamWriter writer)
+    throws XMLStreamException
+  {
+    final var files = this.description.files();
+    final var entries = files.entrySet();
+    final var sorted =
+      entries.stream()
+        .sorted(Comparator.comparing(e -> e.getValue().path()))
+        .collect(Collectors.toUnmodifiableList());
+
+    for (final var entry : sorted) {
+      writeFile(writer, namespaceURI, entry.getValue());
     }
   }
 
