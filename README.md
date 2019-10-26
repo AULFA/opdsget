@@ -2,6 +2,8 @@ opdsget
 ===
 
 [![Build Status](https://img.shields.io/travis/AULFA/opdsget.svg?style=flat-square)](https://travis-ci.org/AULFA/opdsget)
+[![Maven Central](https://img.shields.io/maven-central/v/one.lfa/one.lfa.opsget.png?style=flat-square)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22one.lfa%22)
+[![Maven Central (snapshot)](https://img.shields.io/nexus/s/https/oss.sonatype.org/one.lfa/one.lfa.opsget.svg?style=flat-square)](https://oss.sonatype.org/content/repositories/snapshots/one.lfa/)
 
 An OPDS feed retrieval and rewriting tool.
 
