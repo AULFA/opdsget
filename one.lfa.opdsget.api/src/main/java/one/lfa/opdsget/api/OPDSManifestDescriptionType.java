@@ -23,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A description of a manifest.
@@ -38,7 +39,7 @@ public interface OPDSManifestDescriptionType
    * @return The unique ID of the feed
    */
 
-  URI id();
+  UUID id();
 
   /**
    * @return The file that represents the root of the feed

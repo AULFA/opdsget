@@ -6,6 +6,18 @@
             xmlns:om="urn:one.lfa.opdsget.manifest.xml:1:0"
             targetNamespace="urn:one.lfa.opdsget.manifest.xml:1:0">
 
+  <xsd:simpleType name="uuidType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A globally unique ID (such as "9d430a0a-e57f-4726-aad1-4f7a08c79fbf").
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
   <xsd:simpleType name="hashType">
     <xsd:annotation>
       <xsd:documentation>
@@ -121,7 +133,7 @@
       </xsd:attribute>
 
       <xsd:attribute name="id"
-                     type="xsd:anyURI"
+                     type="om:uuidType"
                      use="required">
         <xsd:annotation>
           <xsd:documentation>

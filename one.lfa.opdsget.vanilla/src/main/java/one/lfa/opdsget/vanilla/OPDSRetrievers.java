@@ -259,7 +259,7 @@ public final class OPDSRetrievers implements OPDSRetrieverProviderType
       this.manifestLock = new Object();
 
       synchronized (this.manifestLock) {
-        this.manifestBuilder.setId(this.configuration.remoteURI());
+        this.manifestBuilder.setId(this.configuration.outputManifestID());
       }
     }
 

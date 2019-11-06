@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A top level handler for OPDS manifest elements.
@@ -69,7 +70,7 @@ public final class OPDSM1TopLevelHandler
     throws SAXException
   {
     try {
-      this.builder.setId(URI.create(attributes.getValue("id")));
+      this.builder.setId(UUID.fromString(attributes.getValue("id")));
       this.builder.setRootFile(attributes.getValue("rootFile"));
       this.builder.setUpdated(OffsetDateTime.parse(attributes.getValue("updated")));
 

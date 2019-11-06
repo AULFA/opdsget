@@ -22,6 +22,22 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.internal.Console;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import one.lfa.epubsquash.vanilla.EPUBSquashers;
 import one.lfa.opdsget.api.OPDSAuthenticationPatternMappedParser;
 import one.lfa.opdsget.api.OPDSAuthenticationType;
@@ -35,22 +51,6 @@ import one.lfa.opdsget.vanilla.OPDSManifestWriters;
 import one.lfa.opdsget.vanilla.OPDSRetrievers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The main command line program.
@@ -106,7 +106,9 @@ public final class Main
           .map(OPDSGetKind::ofName)
           .collect(Collectors.toList());
     } catch (final Exception e) {
-      LOG.error("could not parse one or more content kinds: {}", e.getMessage());
+      LOG.error(
+        "could not parse one or more content kinds: {}",
+        e.getMessage());
       final var sb = new StringBuilder(128);
       jcommander.setConsole(new StringBuilderConsole(sb));
       jcommander.usage();
@@ -137,6 +139,7 @@ public final class Main
         OPDSGetConfiguration.builder()
           .setOutput(parsed_arguments.output_directory.toAbsolutePath())
           .setOutputManifestBaseURI(Optional.ofNullable(parsed_arguments.output_manifest_base_uri))
+          .setOutputManifestID(parsed_arguments.output_manifest_uuid)
           .setRemoteURI(parsed_arguments.feed)
           .setFetchedKinds(included_kinds)
           .setUriRewriter(uriRewriterStrategy(
@@ -301,6 +304,12 @@ public final class Main
     private URI output_manifest_base_uri;
 
     @Parameter(
+      names = "--output-manifest-id",
+      description = "The UUID that will be placed into manifest files",
+      required = false)
+    private UUID output_manifest_uuid = UUID.randomUUID();
+
+    @Parameter(
       names = "--authentication",
       description = "The file containing authentication information",
       required = false)
@@ -367,7 +376,9 @@ public final class Main
     StringBuilderConsole(
       final StringBuilder inStringBuilder)
     {
-      this.stringBuilder = Objects.requireNonNull(inStringBuilder, "inStringBuilder");
+      this.stringBuilder = Objects.requireNonNull(
+        inStringBuilder,
+        "inStringBuilder");
     }
 
     @Override

@@ -16,8 +16,6 @@
 
 package one.lfa.opdsget.api;
 
-import org.immutables.value.Value;
-
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.EnumSet;
@@ -25,7 +23,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
+import org.immutables.value.Value;
 
 /**
  * Configuration values for the OPDS retriever.
@@ -273,7 +273,9 @@ public interface OPDSGetConfigurationType
       final var outputArchive = outputArchiveOpt.get();
       if (!outputArchive.isAbsolute()) {
         throw new IllegalArgumentException(
-          String.format("Output archive path %s must be absolute", outputArchive));
+          String.format(
+            "Output archive path %s must be absolute",
+            outputArchive));
       }
     }
   }
@@ -283,4 +285,14 @@ public interface OPDSGetConfigurationType
    */
 
   Optional<URI> outputManifestBaseURI();
+
+  /**
+   * @return The UUID that will be used as the unique ID of the generated manifest file
+   */
+
+  @Value.Default
+  default UUID outputManifestID()
+  {
+    return UUID.randomUUID();
+  }
 }
