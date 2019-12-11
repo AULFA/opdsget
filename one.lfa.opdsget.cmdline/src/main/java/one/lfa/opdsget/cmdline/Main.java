@@ -306,6 +306,7 @@ public final class Main
     @Parameter(
       names = "--output-manifest-id",
       description = "The UUID that will be placed into manifest files",
+      converter = UUIDConverter.class,
       required = false)
     private UUID output_manifest_uuid = UUID.randomUUID();
 
