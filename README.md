@@ -2,6 +2,8 @@ opdsget
 ===
 
 [![Build Status](https://img.shields.io/travis/AULFA/opdsget.svg?style=flat-square)](https://travis-ci.org/AULFA/opdsget)
+[![Maven Central](https://img.shields.io/maven-central/v/one.lfa/one.lfa.opdsget.png?style=flat-square)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22one.lfa%22)
+[![Maven Central (snapshot)](https://img.shields.io/nexus/s/https/oss.sonatype.org/one.lfa/one.lfa.opdsget.svg?style=flat-square)](https://oss.sonatype.org/content/repositories/snapshots/one.lfa/)
 
 An OPDS feed retrieval and rewriting tool.
 
@@ -51,6 +53,8 @@ Usage: opdsget [options]
       The zip archive that will be created for the feed
   * --output-directory
       The directory that will contain the downloaded feed objects
+    --output-manifest-base-uri
+      The base URI that will be placed into manifest files
     --scale-cover-images
       A scale value in the range (0.0, 1.0] by which to scale cover images
       Default: 1.0
@@ -63,6 +67,9 @@ Usage: opdsget [options]
     --squash-image-max-width
       The maximum width of images
       Default: 1600.0
+    --squash-image-scale
+      The image scale value
+      Default: 1.0
     --uri-rewrite-scheme-name
       The name of the URI scheme used to rewrite URIs (if applicable)
       Default: file
@@ -70,7 +77,6 @@ Usage: opdsget [options]
       The strategy that will be used to rewrite URIs
       Default: RELATIVE
       Possible Values: [NONE, NAMED, RELATIVE]
-
 ```
 
 To download a feed `http://example.com/feed.atom` to directory
@@ -78,7 +84,7 @@ To download a feed `http://example.com/feed.atom` to directory
 authentication, simply run the following:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out
 ```
@@ -94,7 +100,7 @@ http://example.com/feed.atom
 --output-directory
 /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar @arguments.txt
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar @arguments.txt
 ```
 
 ## Archiving/Rewriting
@@ -108,7 +114,7 @@ fixed values in order to help ensure reproducible results. To produce
 a zip file `/tmp/out.zip`, use the `--output-archive` option:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip
@@ -139,7 +145,7 @@ For the `NAMED` strategy, `--uri-rewrite-scheme-name` is used to
 specify the scheme:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --uri-rewrite-strategy NAMED \
@@ -156,17 +162,17 @@ will cause `opdsget` to avoid downloading book images, avoid downloading
 books, and avoid downloading anything other than feeds, respectively:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --output-directory /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind books \
   --output-directory /tmp/out
 
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --exclude-content-kind images \
   --exclude-content-kind books \
@@ -223,7 +229,7 @@ cover images by that value.
 For example, to scale all cover images by 50%:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip \
@@ -281,7 +287,7 @@ Assuming the above example authentication file in `authentication.map`,
 the feed can be fetched using authentication information with:
 
 ```
-$ java -jar au.org.libraryforall.opdsget.cmdline-0.0.5-main.jar \
+$ java -jar one.lfa.opdsget.cmdline-0.0.5-main.jar \
   --feed http://example.com/feed.atom \
   --output-directory /tmp/out \
   --output-archive /tmp/out.zip \
