@@ -56,9 +56,17 @@ public final class OPDSManifestReader implements OPDSManifestReaderType
       .setNamespace(ManifestSchemas.schema1p0Namespace())
       .build();
 
+  private static final JXESchemaDefinition SCHEMA_1_1 =
+    JXESchemaDefinition.builder()
+      .setFileIdentifier("schema-1.1.xsd")
+      .setLocation(ManifestSchemas.schema1p1URL())
+      .setNamespace(ManifestSchemas.schema1p1Namespace())
+      .build();
+
   private static final JXESchemaResolutionMappings SCHEMA_MAPPINGS =
     JXESchemaResolutionMappings.builder()
       .putMappings(SCHEMA_1_0.namespace(), SCHEMA_1_0)
+      .putMappings(SCHEMA_1_1.namespace(), SCHEMA_1_1)
       .build();
 
   private static final JXEHardenedSAXParsers PARSERS =
@@ -149,6 +157,10 @@ public final class OPDSManifestReader implements OPDSManifestReaderType
         BTContentHandler.<OPDSManifestDescription>builder()
           .addHandler(
             SCHEMA_1_0.namespace().toString(),
+            "Manifest",
+            OPDSM1TopLevelHandler::new)
+          .addHandler(
+            SCHEMA_1_1.namespace().toString(),
             "Manifest",
             OPDSM1TopLevelHandler::new)
           .build(this.uri, error -> this.errors.onError(blackthorneToOPDS(this.uri, error)));

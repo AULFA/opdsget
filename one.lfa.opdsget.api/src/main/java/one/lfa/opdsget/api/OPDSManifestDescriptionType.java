@@ -48,6 +48,16 @@ public interface OPDSManifestDescriptionType
   String rootFile();
 
   /**
+   * @return The title of the OPDS feed
+   */
+
+  @Value.Default
+  default String title()
+  {
+    return "";
+  }
+
+  /**
    * @return The time the manifest was generated
    */
 

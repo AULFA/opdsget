@@ -140,6 +140,7 @@ public final class Main
           .setOutput(parsed_arguments.output_directory.toAbsolutePath())
           .setOutputManifestBaseURI(Optional.ofNullable(parsed_arguments.output_manifest_base_uri))
           .setOutputManifestID(parsed_arguments.output_manifest_uuid)
+          .setOutputManifestTitle(parsed_arguments.output_manifest_title)
           .setRemoteURI(parsed_arguments.feed)
           .setFetchedKinds(included_kinds)
           .setUriRewriter(uriRewriterStrategy(
@@ -309,6 +310,12 @@ public final class Main
       converter = UUIDConverter.class,
       required = false)
     private UUID output_manifest_uuid = UUID.randomUUID();
+
+    @Parameter(
+      names = "--output-manifest-title",
+      description = "The title that will be placed into manifest files",
+      required = false)
+    private String output_manifest_title;
 
     @Parameter(
       names = "--authentication",

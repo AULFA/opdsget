@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            attributeFormDefault="unqualified"
+            elementFormDefault="qualified"
+            xmlns:om="urn:one.lfa.opdsget.manifest.xml:1:1"
+            targetNamespace="urn:one.lfa.opdsget.manifest.xml:1:1">
+
+  <xsd:simpleType name="uuidType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A globally unique ID (such as "9d430a0a-e57f-4726-aad1-4f7a08c79fbf").
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="hashType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A file hash (such as
+        "0C61874DFF5DD081FAE45A146964EAA2B03D4217B4C1095E4839FD7080FDA66D").
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[A-F0-9]+"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:element name="File">
+    <xsd:annotation>
+      <xsd:documentation>
+        A single downloadable file.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:attribute name="name"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The unique (within the manifest) name of the file.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="hash"
+                     type="om:hashType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The hash of the file.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="hashAlgorithm"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The algorithm used to calculate the hash of the file (such as
+            "SHA-256").
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Manifest">
+    <xsd:annotation>
+      <xsd:documentation>
+        A manifest of all the files that need to be downloaded in order to
+        reproduce a given OPDS feed. Manifests contain links to content, and
+        full hash information to ensure that content has been downloaded
+        correctly.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="om:File"
+                     minOccurs="1"
+                     maxOccurs="unbounded"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="base"
+                     type="xsd:anyURI"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The base attribute specifies the base address of the content; all
+            files specified in the manifest should be resolved relative to this
+            base address.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="rootFile"
+                     type="xsd:anyURI"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The file that represents the root of the feed.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="updated"
+                     type="xsd:dateTime"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The time that the manifest was generated.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="title"
+                     type="xsd:string"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The title of the OPDS feed.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="searchIndex"
+                     type="xsd:anyURI"
+                     use="optional">
+        <xsd:annotation>
+          <xsd:documentation>
+            The file that represents the search index for the feed, if one
+            was provided.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="id"
+                     type="om:uuidType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The id attribute specifies the globally-unique ID of the feed
+            described by the manifest.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:unique name="fileNamesAreUnique">
+      <xsd:annotation>
+        <xsd:documentation>
+          File names must be unique.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="om:File"/>
+      <xsd:field xpath="@name"/>
+    </xsd:unique>
+
+    <xsd:key name="fileKey">
+      <xsd:annotation>
+        <xsd:documentation>
+          File names can be referred to as primary keys.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="om:File"/>
+      <xsd:field xpath="@name"/>
+    </xsd:key>
+
+    <xsd:keyref name="rootFileExists"
+                refer="om:fileKey">
+      <xsd:annotation>
+        <xsd:documentation>
+          The specified root file must exist in the manifest.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="."/>
+      <xsd:field xpath="@rootFile"/>
+    </xsd:keyref>
+
+    <xsd:keyref name="searchIndexExists"
+                refer="om:fileKey">
+      <xsd:annotation>
+        <xsd:documentation>
+          The specified search index must exist in the manifest.
+        </xsd:documentation>
+      </xsd:annotation>
+
+      <xsd:selector xpath="."/>
+      <xsd:field xpath="@searchIndex"/>
+    </xsd:keyref>
+  </xsd:element>
+
+</xsd:schema>
