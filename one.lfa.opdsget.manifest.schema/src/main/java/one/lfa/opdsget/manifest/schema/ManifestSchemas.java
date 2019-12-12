@@ -62,4 +62,35 @@ public final class ManifestSchemas
     return ManifestSchemas.class.getResource(
       "/one/lfa/opdsget/manifest/schema/schema-1.0.xsd");
   }
+
+  /**
+   * @return The 1.1 schema namespace
+   */
+
+  public static URI schema1p1Namespace()
+  {
+    return URI.create("urn:one.lfa.opdsget.manifest.xml:1:1");
+  }
+
+  /**
+   * @return The 1.1 schema
+   *
+   * @throws IOException On I/O errors
+   */
+
+  public static InputStream schema1p1()
+    throws IOException
+  {
+    return schema1p1URL().openStream();
+  }
+
+  /**
+   * @return The 1.1 schema
+   */
+
+  public static URL schema1p1URL()
+  {
+    return ManifestSchemas.class.getResource(
+      "/one/lfa/opdsget/manifest/schema/schema-1.1.xsd");
+  }
 }

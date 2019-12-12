@@ -295,4 +295,14 @@ public interface OPDSGetConfigurationType
   {
     return UUID.randomUUID();
   }
+
+  /**
+   * @return The text that will be used as the title in the generated manifest file
+   */
+
+  @Value.Default
+  default String outputManifestTitle()
+  {
+    return "";
+  }
 }

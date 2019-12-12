@@ -78,7 +78,7 @@ public final class OPDSManifestWriter implements OPDSManifestWriterType
     throws IOException
   {
     try {
-      final var namespaceURI = ManifestSchemas.schema1p0Namespace().toString();
+      final var namespaceURI = ManifestSchemas.schema1p1Namespace().toString();
       final var factory = XMLOutputFactory.newFactory();
       final var writer = factory.createXMLStreamWriter(this.buffer, "UTF-8");
 
@@ -90,6 +90,7 @@ public final class OPDSManifestWriter implements OPDSManifestWriterType
       writer.writeAttribute("rootFile", this.description.rootFile());
       writer.writeAttribute("id", this.description.id().toString());
       writer.writeAttribute("updated", this.description.updated().toString());
+      writer.writeAttribute("title", this.description.title());
 
       final var searchOpt = this.description.searchIndex();
       if (searchOpt.isPresent()) {

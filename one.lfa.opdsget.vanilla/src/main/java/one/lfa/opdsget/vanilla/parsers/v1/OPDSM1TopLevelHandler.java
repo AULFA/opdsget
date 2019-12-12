@@ -59,6 +59,9 @@ public final class OPDSM1TopLevelHandler
   {
     return Map.of(
       BTQualifiedName.of(ManifestSchemas.schema1p0Namespace().toString(), "File"),
+      OPDSM1FileHandler::new,
+
+      BTQualifiedName.of(ManifestSchemas.schema1p1Namespace().toString(), "File"),
       OPDSM1FileHandler::new
     );
   }
@@ -73,6 +76,11 @@ public final class OPDSM1TopLevelHandler
       this.builder.setId(UUID.fromString(attributes.getValue("id")));
       this.builder.setRootFile(attributes.getValue("rootFile"));
       this.builder.setUpdated(OffsetDateTime.parse(attributes.getValue("updated")));
+
+      final var title = attributes.getValue("title");
+      if (title != null) {
+        this.builder.setTitle(title);
+      }
 
       final var base = attributes.getValue("base");
       if (base != null) {
