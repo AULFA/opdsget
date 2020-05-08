@@ -196,7 +196,7 @@ public final class Main
       case NAMED:
         return OPDSURIRewriters.namedSchemeRewriter(
           arguments.uri_rewrite_scheme_name,
-          arguments.output_directory);
+          arguments.output_directory.toAbsolutePath());
       case RELATIVE:
         return OPDSURIRewriters.relativeRewriter();
     }
