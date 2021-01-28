@@ -115,7 +115,8 @@ public final class OPDSM1TopLevelHandler
     throws SAXException
   {
     try {
-      this.builder.putFiles(URI.create(result.path()), result);
+      final var path = result.path().replace("\\", "/");
+      this.builder.putFiles(URI.create(path), result);
     } catch (final Exception e) {
       throw context.parseException(e);
     }

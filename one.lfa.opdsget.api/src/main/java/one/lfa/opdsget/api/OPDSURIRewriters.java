@@ -60,7 +60,8 @@ public final class OPDSURIRewriters
       final var sourceURI = targetFile.file().getParent().getParent().toAbsolutePath();
       final var targetURI = targetFile.file().toAbsolutePath();
       Invariants.checkInvariant(targetURI, targetURI.isAbsolute(), u -> "Target must be absolute");
-      final var relative = URI.create(sourceURI.relativize(targetURI).toString());
+      final var relative =
+        URI.create(sourceURI.relativize(targetURI).toString().replace('\\', '/'));
       Invariants.checkInvariant(relative, !relative.isAbsolute(), u -> "Output must be relative");
       return relative;
     };
@@ -94,7 +95,8 @@ public final class OPDSURIRewriters
 
     return (sourceFile, targetFile) -> {
       final var file = targetFile.file();
-      return URI.create(scheme + "://" + output.relativize(file));
+      final var relative = output.relativize(file);
+      return URI.create(scheme + "://" + relative.toString().replace("\\", "/"));
     };
   }
 

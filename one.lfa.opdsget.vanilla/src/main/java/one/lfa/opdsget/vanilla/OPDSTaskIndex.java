@@ -115,7 +115,7 @@ final class OPDSTaskIndex
             writer.append(term);
             writer.append(" ");
             writer.append(uri.toString());
-            writer.newLine();
+            writer.append('\n');
           }
         }
         writer.flush();
