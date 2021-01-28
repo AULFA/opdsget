@@ -682,9 +682,11 @@ public abstract class OPDSRetrieverContract
     assertFileExists(this.output.resolve("index.txt"));
 
     final var expectedLines =
-      new String(resourceStream("feedbooks-index.txt").readAllBytes(), UTF_8);
+      new String(resourceStream("feedbooks-index.txt").readAllBytes(), UTF_8)
+        .trim();
     final var receivedLines =
-      Files.readString(this.output.resolve("index.txt"), UTF_8);
+      Files.readString(this.output.resolve("index.txt"), UTF_8)
+        .trim();
 
     Assert.assertEquals(expectedLines, receivedLines);
     final var manifest = this.parseManifest(this.output.resolve("manifest.xml"));
