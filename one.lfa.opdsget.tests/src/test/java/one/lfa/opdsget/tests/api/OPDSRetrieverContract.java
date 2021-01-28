@@ -43,10 +43,12 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -57,6 +59,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +70,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -645,7 +649,8 @@ public abstract class OPDSRetrieverContract
         path.toUri(),
         stream)) {
         return reader.read()
-          .orElseThrow(() -> new IllegalStateException("Could not parse manifest"));
+          .orElseThrow(() -> new IllegalStateException(
+            "Could not parse manifest"));
       }
     } catch (final Exception e) {
       throw new IllegalStateException(e);
@@ -681,12 +686,21 @@ public abstract class OPDSRetrieverContract
 
     assertFileExists(this.output.resolve("index.txt"));
 
-    final var expectedLines =
-      new String(resourceStream("feedbooks-index.txt").readAllBytes(), UTF_8)
-        .trim();
+    final List<String> expectedLines;
+    try (var reader = new BufferedReader(
+      new InputStreamReader(
+        resourceStream("feedbooks-index.txt"), UTF_8))) {
+      expectedLines =
+        reader.lines()
+          .map(String::trim)
+          .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     final var receivedLines =
-      Files.readString(this.output.resolve("index.txt"), UTF_8)
-        .trim();
+      Files.readAllLines(this.output.resolve("index.txt"), UTF_8)
+        .stream()
+        .map(String::trim)
+        .collect(Collectors.toList());
 
     Assert.assertEquals(expectedLines, receivedLines);
     final var manifest = this.parseManifest(this.output.resolve("manifest.xml"));
@@ -718,7 +732,9 @@ public abstract class OPDSRetrieverContract
       this.verifyManifestFile(file);
     }
 
-    this.logger().debug("checking {} files are in the manifest", Integer.valueOf(mustExist.length));
+    this.logger().debug(
+      "checking {} files are in the manifest",
+      Integer.valueOf(mustExist.length));
     Assert.assertEquals(mustExist.length, manifest.files().size());
   }
 
