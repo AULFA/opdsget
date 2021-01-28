@@ -106,8 +106,8 @@ public final class OPDSImageScaler
 
         LOG.debug("scale {}", path);
 
+        final Path temp;
         try (var stream = new BufferedInputStream(Files.newInputStream(path), 8192)) {
-          final Path temp;
           final var image = ImageIO.read(stream);
           if (image != null) {
             final var originalWidth = image.getWidth();
@@ -132,10 +132,9 @@ public final class OPDSImageScaler
             LOG.error("unable to parse image {}", path);
             temp = path;
           }
-
-          Files.move(temp, path, REPLACE_EXISTING, ATOMIC_MOVE);
-          this.changeRequired.onFileChanged(GENERAL, path);
         }
+        Files.move(temp, path, REPLACE_EXISTING, ATOMIC_MOVE);
+        this.changeRequired.onFileChanged(GENERAL, path);
       }
     }
   }
