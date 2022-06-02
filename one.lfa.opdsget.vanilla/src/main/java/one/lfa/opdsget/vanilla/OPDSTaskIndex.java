@@ -48,7 +48,7 @@ final class OPDSTaskIndex
   private static final Pattern WHITESPACE =
     Pattern.compile("\\s+");
   private static final Pattern NOT_UPPERCASE_ALPHA_NUMERIC =
-    Pattern.compile("[^\\p{Lu}\\p{Digit}]+");
+    Pattern.compile("[^\\p{Lu}\\p{Digit}\\p{sc=Myanmar}\\p{sc=Lao}]+");
 
   private final OPDSGetConfiguration configuration;
   private final OPDSManifestChangeRequiredType onChangeRequired;
